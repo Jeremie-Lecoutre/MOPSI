@@ -1,11 +1,12 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # ********************** Time steps management ***********************
 
-T = 10000
-N = 100
+T = 30
+N = 30
 h = T/N
-tab_N = [n for n in range(N)]
+tab_N = range(N)
 tab_T = [n*h for n in tab_N]
 
 
@@ -56,7 +57,6 @@ def initialize_min_max(v, x):
                 min([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
             j_d[n].append(
                 max([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
-
     return k_u, k_d, j_u, j_d
 
 
@@ -78,4 +78,30 @@ def initialize_probability(v, x, k_u, k_d, j_u, j_d):
     return p_u_v, p_d_v, p_u_x, p_d_x
 
 
-# if __name__ == '__main__':
+def puu(n, k, j, p_u_v, p_u_x):
+    return p_u_v[n][k] * p_u_x[n][j]
+
+
+def pud(n, k, j, p_u_v, p_d_x):
+    return p_u_v[n][k] * p_d_x[n][j]
+
+
+def pdu(n, k, j, p_d_v, p_u_x):
+    return p_d_v[n][k] * p_u_x[n][j]
+
+
+def pdd(n, k, j, p_d_v, p_d_x):
+    return p_d_v[n][k] * p_d_x[n][j]
+
+
+if __name__ == '__main__':
+    V, X = initialize_v_x()
+    plt.subplot(1, 2, 1)
+    for n in tab_N:
+        for k in range(n):
+            plt. scatter(n, V[n][k], s=1, color='BLACK')
+    plt.subplot(1, 2, 2)
+    for n in tab_N:
+        for k in range(n):
+            plt. scatter(n, X[n][k], s=1, color='BLACK')
+    plt.show()
