@@ -60,4 +60,22 @@ def initialize_min_max(v, x):
     return k_u, k_d, j_u, j_d
 
 
+def initialize_probability(v, x, k_u, k_d, j_u, j_d):
+    p_u_v = [[] for n in tab_N]
+    p_d_v = [[] for n in tab_N]
+    p_u_x = [[] for n in tab_N]
+    p_d_x = [[] for n in tab_N]
+    for n in tab_N:
+        for k in range(n):
+            p_u_v[n].append(max(0, min(1, (mu_v(v[n][k]) + v[n][k] - v[n + 1][k_d[n][k]]) / (
+                        v[n + 1][k_u[n][k]] - v[n + 1][k_d[n][k]]))))
+            p_u_x[n].append(max(0, min(1, (mu_x(x[n][k]) + x[n][k] - x[n + 1][j_d[n][k]]) / (
+                        x[n + 1][j_u[n][k]] - x[n + 1][j_d[n][k]]))))
+    for n in tab_N:
+        for k in range(n):
+            p_d_v[n].append(1-p_u_v[n][k])
+            p_d_x[n].append(1-p_u_x[n][k])
+    return p_u_v, p_d_v, p_u_x, p_d_x
+
+
 # if __name__ == '__main__':
