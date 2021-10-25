@@ -96,10 +96,13 @@ def pdd(n, k, j, p_d_v, p_d_x):
 
 if __name__ == '__main__':
     V, X = initialize_v_x()
+    # k_u, k_d, j_u, j_d = initialize_min_max(V,X)
     plt.subplot(1, 2, 1)
     for n in tab_N:
         for k in range(n):
             plt. scatter(n, V[n][k], s=1, color='BLACK')
+    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='RED')
+    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='BLUE')
     plt.subplot(1, 2, 2)
     for n in tab_N:
         for k in range(n):
