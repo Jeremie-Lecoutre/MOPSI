@@ -1,7 +1,22 @@
-# This is a sample Python script.
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# ********************** Time steps management ***********************
+
+T = 30
+N = 30
+h = T/N
+tab_N = range(N)
+tab_T = [n*h for n in tab_N]
+
+
+# *************************** Parameters *****************************
+
+sigma_V = 1
+V_0 = 1
+kappa_V = 1
+kappa_r = 1
+theta_V = 1
 
 # Modules:
 import numpy as np
@@ -20,17 +35,96 @@ Lambda=1
 Var_J=1 #variance de log(1+J_k)
 Esp_J=1 #esperance de log(1+J_k)
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# ************************** Initialization **************************
 
 
-# Press the green button in the gutter to run the script.
+def initialize_v_x():
+    v = [[]for n in tab_N]
+    x = [[] for n in tab_N]
+    for n in tab_N:
+        for k in range(n):
+            v_k_n = 0
+            if np.sqrt(V_0)+sigma_V/2*(2*k-n)*np.sqrt(h) > 0:
+                v_k_n = (np.sqrt(V_0)+sigma_V/2*(2*k-n)*np.sqrt(h))**2
+            v[n].append(v_k_n)
+            x[n].append((2*k-n)*np.sqrt(h))
+    return v, x
+
+
+def mu_v(v):
+    return kappa_V*(theta_V-v)
+
+
+def mu_x(x):
+    return -kappa_r*x
+
+
+def initialize_min_max(v, x):
+    k_u = [[] for n in tab_N]
+    k_d = [[] for n in tab_N]
+    j_u = [[] for n in tab_N]
+    j_d = [[] for n in tab_N]
+    for n in tab_N:
+        for k in range(n):
+            k_u[n].append(
+                min([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_v(v[n][k]) * h < v[n + 1][k_star]]))
+            k_d[n].append(
+                max([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_v(v[n][k]) * h < v[n + 1][k_star]]))
+            j_u[n].append(
+                min([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
+            j_d[n].append(
+                max([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
+    return k_u, k_d, j_u, j_d
+
+
+def initialize_probability(v, x, k_u, k_d, j_u, j_d):
+    p_u_v = [[] for n in tab_N]
+    p_d_v = [[] for n in tab_N]
+    p_u_x = [[] for n in tab_N]
+    p_d_x = [[] for n in tab_N]
+    for n in tab_N:
+        for k in range(n):
+            p_u_v[n].append(max(0, min(1, (mu_v(v[n][k]) + v[n][k] - v[n + 1][k_d[n][k]]) / (
+                        v[n + 1][k_u[n][k]] - v[n + 1][k_d[n][k]]))))
+            p_u_x[n].append(max(0, min(1, (mu_x(x[n][k]) + x[n][k] - x[n + 1][j_d[n][k]]) / (
+                        x[n + 1][j_u[n][k]] - x[n + 1][j_d[n][k]]))))
+    for n in tab_N:
+        for k in range(n):
+            p_d_v[n].append(1-p_u_v[n][k])
+            p_d_x[n].append(1-p_u_x[n][k])
+    return p_u_v, p_d_v, p_u_x, p_d_x
+
+
+def puu(n, k, j, p_u_v, p_u_x):
+    return p_u_v[n][k] * p_u_x[n][j]
+
+
+def pud(n, k, j, p_u_v, p_d_x):
+    return p_u_v[n][k] * p_d_x[n][j]
+
+
+def pdu(n, k, j, p_d_v, p_u_x):
+    return p_d_v[n][k] * p_u_x[n][j]
+
+
+def pdd(n, k, j, p_d_v, p_d_x):
+    return p_d_v[n][k] * p_d_x[n][j]
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    V, X = initialize_v_x()
+    # k_u, k_d, j_u, j_d = initialize_min_max(V,X)
+    plt.subplot(1, 2, 1)
+    for n in tab_N:
+        for k in range(n):
+            plt. scatter(n, V[n][k], s=1, color='BLACK')
+    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='RED')
+    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='BLUE')
+    plt.subplot(1, 2, 2)
+    for n in tab_N:
+        for k in range(n):
+            plt. scatter(n, X[n][k], s=1, color='BLACK')
+    plt.show()
 
 # 3.2. The approximation of the component Y
 
