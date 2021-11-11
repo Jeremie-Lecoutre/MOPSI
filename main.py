@@ -238,6 +238,7 @@ def pho_3(pho_1_test, pho_2_test):
 def y_n_plus_1(y_n, x_n, x_n_plus_1, v_n, v_n_plus_1, _n):
     k = np.random.poisson(Lambda * h)
     somme_log_jk = 0
+    y_n_plus_un = 0
     if k > 0:
         vector_k = np.arange(k)
         np.ones_like(vector_k)
