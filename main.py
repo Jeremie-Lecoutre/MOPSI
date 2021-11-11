@@ -18,6 +18,23 @@ kappa_V = 2
 kappa_r = 2
 theta_V = 0.04
 
+# Modules:
+import numpy as np
+import scipy.integrate as integrate
+
+kappa_r=1
+kappa_V=1
+theta_V=1
+sigma_r=1
+sigma_V=1
+r_0=1
+eta=1
+pho_1=1
+pho_2=1
+Lambda=1
+Var_J=1 #variance de log(1+J_k)
+Esp_J=1 #esperance de log(1+J_k)
+
 # ************************** Initialization **************************
 
 
@@ -134,3 +151,44 @@ if __name__ == '__main__':
         for kk in range(nn):
             plt. scatter(nn, X[nn][kk], s=1, color='BLACK')
     plt.show()
+
+# 3.2. The approximation of the component Y
+
+def theta_r(t):     # à définir en fonction du modèle...
+    return 1
+
+
+def integrand_phi(t):              # intégrande de la fonction phi
+    return(theta_r(t)*np.exp(kappa_r*t))
+
+def phi(t):
+    return( r_0 * np.exp(-kappa_r*t) + kappa_r * np.exp(-kappa_r*t) * integrate.quad(integrand_phi,0,t ))
+
+
+def mu(v,x,t):
+    return(sigma_r*x+phi(t)-eta-0.5*v-(pho_1*kappa_V*(theta_V-v)/sigma_V)+pho_2*kappa_r*x*np.sqrt(v))
+
+
+
+# 3.3. The Monte Carlo approach for the approximation of the component Y
+Var_delta=1 #variance des lois delta du monte carlo
+Esp_delta=1 #variance des lois delta du monte carlo
+n=100
+vec_1=np.arange(n)
+np.ones_like(vec_1)
+delta = np.random.multivariate_normal(Esp_delta*vec_1, Var_delta * np.eye(n))
+def pho_3(pho_1,pho_2):
+    return (np.sqrt((1-pho_1**2-pho_2**2)))
+def Y_n_plus_1(h,Y_n,X_n,X_n_plus_1,V_n,V_n_plus_1,_n):
+    K=np.random.poisson(Lambda*h)
+    somme_log_JK =0
+    if(K>0):
+        vector_k=np.arange(K)
+        np.ones_like(vector_k)
+        log_JK=np.random.multivariate_normal(Esp_J*vector_k,Var_J*np.eye(K))
+        somme_log_JK=np.sum(log_JK)
+    Y_n_plus_un= Y_n + mu(V_n,X_n,_n*h)+ pho_3(pho_1,pho_2)*np.sqrt(h*V_n)*delta[_n+1]+pho_1*(V_n_plus_1-V_n)/sigma_V + pho_2*np.sqrt(V_n)*(X_n_plus_1-X_n)+somme_log_JK
+    return(Y_n_plus_un)
+
+
+
