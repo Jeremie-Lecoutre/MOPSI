@@ -12,17 +12,17 @@ tab_T = [n*h for n in tab_N]
 
 # *************************** Parameters *****************************
 
-sigma_V = 1
-V_0 = 1
-kappa_V = 1
-kappa_r = 1
-theta_V = 1
+sigma_V = 0.4
+V_0 = 0.04
+kappa_V = 2
+kappa_r = 2
+theta_V = 0.04
 
 # ************************** Initialization **************************
 
 
 def initialize_v_x():
-    v = [[]for n in tab_N]
+    v = [[] for n in tab_N]
     x = [[] for n in tab_N]
     for n in tab_N:
         for k in range(n):
@@ -49,14 +49,40 @@ def initialize_min_max(v, x):
     j_d = [[] for n in tab_N]
     for n in tab_N:
         for k in range(n):
-            k_u[n].append(
-                min([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_v(v[n][k]) * h < v[n + 1][k_star]]))
-            k_d[n].append(
-                max([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_v(v[n][k]) * h < v[n + 1][k_star]]))
-            j_u[n].append(
-                min([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
-            j_d[n].append(
-                max([k_star for k_star in range(k + 1, n + 1) and v[n][k] + mu_x(x[n][k]) * h < x[n + 1][k_star]]))
+            k_u_inter = []
+            k_d_inter = []
+            j_u_inter = []
+            j_d_inter = []
+            for counter in range(k+1, n): # Remettre les bons indices/effets de bords
+                if v[n][k] + mu_v(v[n][k]) * h <= v[n][counter]:
+                    k_u_inter.append(counter)
+            for counter in range(k):
+                if v[n][k] + mu_v(v[n][k]) * h >= v[n][counter]:
+                    k_d_inter.append(counter)
+            for counter in range(k+1, n):
+                if x[n][k] + mu_x(x[n][k]) * h <= x[n][counter]:
+                    j_u_inter.append(counter)
+            for counter in range(k):
+                if x[n][k] + mu_x(x[n][k]) * h >= x[n][counter]:
+                    j_d_inter.append(counter)
+
+            if not k_u_inter:
+                k_u[n].append(-1)
+            else:
+                k_u[n].append(min(k_u_inter))
+            if not k_d_inter:
+                k_d[n].append(-1)
+            else:
+                k_d[n].append(min(k_d_inter))
+            if not j_u_inter:
+                j_u[n].append(-1)
+            else:
+                j_u[n].append(min(j_u_inter))
+            if not j_d_inter:
+                j_d[n].append(-1)
+            else:
+                j_d[n].append(min(j_d_inter))
+    print(k_d)
     return k_u, k_d, j_u, j_d
 
 
@@ -96,15 +122,15 @@ def pdd(n, k, j, p_d_v, p_d_x):
 
 if __name__ == '__main__':
     V, X = initialize_v_x()
-    # k_u, k_d, j_u, j_d = initialize_min_max(V,X)
+    k_u_test, k_d_test, j_u_test, j_d_test = initialize_min_max(V, X)
     plt.subplot(1, 2, 1)
-    for n in tab_N:
-        for k in range(n):
-            plt. scatter(n, V[n][k], s=1, color='BLACK')
-    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='RED')
-    # plt.scatter(15, V[15][k_d[15, 7]], s=5, color='BLUE')
+    for nn in tab_N:
+        for kk in range(nn):
+            plt. scatter(nn, V[nn][kk], s=1, color='BLACK')
+    plt.scatter(15, V[15][k_d_test[15][7]], s=5, color='RED')
+    plt.scatter(15, V[15][k_d_test[15][7]], s=5, color='BLUE')
     plt.subplot(1, 2, 2)
-    for n in tab_N:
-        for k in range(n):
-            plt. scatter(n, X[n][k], s=1, color='BLACK')
+    for nn in tab_N:
+        for kk in range(nn):
+            plt. scatter(nn, X[nn][kk], s=1, color='BLACK')
     plt.show()
