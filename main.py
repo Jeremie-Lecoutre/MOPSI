@@ -164,7 +164,7 @@ def integrand_phi(t):  # integrand of the function phi
 def phi(t):
     return r_0 * np.exp(-kappa_r * t) + kappa_r * np.exp(-kappa_r * t) * integrate.quad(integrand_phi, 0, t)
 
-
+# 4. The Hybrid Tree/Finite Difference Approach
 def mu(v, x, t):
     return sigma_r * x + phi(t) - eta - 0.5 * v - (
             pho_1 * kappa_V * (theta_V - v) / sigma_V) + pho_2 * kappa_r * x * np.sqrt(v)
@@ -195,3 +195,35 @@ def y_n_plus_1(y_n, x_n, x_n_plus_1, v_n, v_n_plus_1, _n):
         y_n_plus_un = y_n + mu(v_n, x_n, _n * h) + pho_3(pho_1, pho_2) * np.sqrt(h * v_n) * delta[_n + 1] + pho_1 * (
                 v_n_plus_1 - v_n) / sigma_V + pho_2 * np.sqrt(v_n) * (x_n_plus_1 - x_n) + somme_log_jk
     return y_n_plus_un
+
+# 4. The Hybrid Tree/Finite Difference Approach
+# 4.1. The local 1-dimensional partial integro-differential equation
+# 4.1.1. Finite-difference and numerical quadrature
+
+M=500 #qui doit être entier et supérieur à R
+R=100
+Y0=0.15
+delta_y=0.1
+grille_finie_Y_M=Y0*np.ones(2*M)+delta_y*np.linspace(-M,M,2*M)
+
+def A(n,v,x):
+    alpha= h*mu(v,x,n*h)/(2*delta_y)
+    beta= h*(pho_3(pho_1,pho_2)**2)*v/(2*(delta_y**2))
+    A=np.eye(2*M+1)
+    for i in range(1,2*M):
+        A[i][i-1]=alpha-beta
+        A[i-1][i]=-alpha-beta
+    return A
+def densite_loi_normale(x,esperance,ecart_type):
+    return(np.exp(-0.5*(((x-esperance)/ecart_type)**2))/(ecart_type*np.sqrt(2*np.pi)))
+
+gamma=0
+for i in range(-R,R,1):
+    gamma+=Lambda*densite_loi_normale(i*delta_y,Esp_J,Var_J)
+
+B=np.eye(2*M+1)+h*delta_y*(Lambda*densite_loi_normale(0,Esp_J,Var_J)-gamma)*np.eye(2*M+1)
+for i in range(1, 2 * M):
+    B[i][i - 1] += h*delta_y*Lambda*densite_loi_normale(-delta_y,Esp_J,Var_J)
+    B[i - 1][i] += h*delta_y*Lambda*densite_loi_normale(delta_y,Esp_J,Var_J)
+
+# ici b(nh,y_i) vaut 0 car les indices sont inférieurs à R ou M
