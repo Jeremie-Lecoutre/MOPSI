@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
+import random as rd
 
 # ********************** Time steps management ***********************
 
@@ -31,6 +32,25 @@ def initialize_v_x():
                 v_k_n = (np.sqrt(V_0) + sigma_V / 2 * (2 * k - n) * np.sqrt(h)) ** 2
             v[n].append(v_k_n)
             x[n].append((2 * k - n) * np.sqrt(h))
+    return v, x
+
+
+def initialize_v_x_2():
+    v = []
+    x = []
+    for n in tab_N:
+        v_n = []
+        x_n = []
+        for k in range(n):
+            if np.sqrt(V_0) + sigma_V / 2 * (2 * k - n) * np.sqrt(h) > 0:
+                v_n.append((np.sqrt(V_0) + sigma_V / 2 * (2 * k - n) * np.sqrt(h)) ** 2)
+            else:
+                v_n.append(0)
+            x_n.append((2 * k - n) * np.sqrt(h))
+        v.append(v_n)
+        x.append(x_n)
+    del(v[0])
+    del(x[0])
     return v, x
 
 
@@ -65,7 +85,6 @@ def initialize_min_max(v, x):
             for counter in range(k):
                 if x[n][k] + mu_x(x[n][k]) * h >= x[n][counter]:
                     j_d_inter.append(counter)
-
             if not k_u_inter:
                 k_u[n].append(-1)
             else:
@@ -82,7 +101,6 @@ def initialize_min_max(v, x):
                 j_d[n].append(-1)
             else:
                 j_d[n].append(min(j_d_inter))
-    print(k_d)
     return k_u, k_d, j_u, j_d
 
 
@@ -120,6 +138,37 @@ def pdd(n, k, j, p_d_v, p_d_x):
     return p_d_v[n][k] * p_d_x[n][j]
 
 
+def jump(n, k, j, k_u, k_d, j_u, j_d, p_u_v, p_u_x, p_d_v, p_d_x):
+    p = rd.random()
+    p_inter = puu(n, k, j, p_u_v, p_u_x)
+    if p < p_inter:
+        return n+1, k_u(n, k), j_u(n, j)
+    if p_inter < p < p_inter + pud(n, k, j, p_u_v, p_d_x):
+        return n+1, k_u(n, k), j_d(n, j)
+    p_inter += pud(n, k, j, p_u_v, p_d_x)
+    if p_inter < p < p_inter + pdu(n, k, j, p_d_v, p_u_x):
+        return n+1, k_d(n, k), j_u(n, j)
+    p_inter += pdu(n, k, j, p_d_v, p_u_x)
+    if p_inter < p < p_inter + pdd(n, k, j, p_d_v, p_d_x):
+        return n+1, k_d(n, k), j_d(n, j)
+    else:
+        return n+1, k, j
+
+
+def simulation():
+    v, x = initialize_v_x_2()
+    k_u, k_d, j_u, j_d = initialize_min_max(V, X)
+    result_v = [v[0][0]]
+    result_x = [x[0][0]]
+    n, k, j = 0, 0, 0
+    p_u_v, p_d_v, p_u_x, p_d_x = initialize_probability(v, x, k_u, k_d, j_u, j_d)
+    for counter in range(N):
+        n, k, j = jump(n, k, j, k_u, k_d, j_u, j_d, p_u_v, p_u_x, p_d_v, p_d_x)
+        result_v.append(v[n][k])
+        result_x.append(x[n][j])
+    return result_v, result_x
+
+
 if __name__ == '__main__':
     V, X = initialize_v_x()
     k_u_test, k_d_test, j_u_test, j_d_test = initialize_min_max(V, X)
@@ -127,13 +176,15 @@ if __name__ == '__main__':
     for nn in tab_N:
         for kk in range(nn):
             plt.scatter(nn, V[nn][kk], s=1, color='BLACK')
-    plt.scatter(15, V[15][k_d_test[15][7]], s=5, color='RED')
-    plt.scatter(15, V[15][k_d_test[15][7]], s=5, color='BLUE')
     plt.subplot(1, 2, 2)
     for nn in tab_N:
         for kk in range(nn):
             plt.scatter(nn, X[nn][kk], s=1, color='BLACK')
     plt.show()
+    # result_V, result_X = simulation()
+    # print(result_V)
+    # print(result_X)
+
 
 # ************************** New parameters ****************************
 
