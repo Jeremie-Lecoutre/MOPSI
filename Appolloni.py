@@ -13,6 +13,7 @@ theta = 0.2      # long term reversion target
 rho = 0.4         # correlation between Z_S and Z_r
 T = 1            # time to maturity
 N = 30           # Number of intervals
+K = 3325         # Strike of the American Put Option
 
 # The Wei and Hilliard-Schwartz-Tucker procedures
 h = T/N
@@ -139,3 +140,31 @@ def r_i_k(i, k):
     else:
         return 0
 
+
+# backward dynamic programming for American put option #
+def initialize_v():
+    v0 = []
+    for j in range(0, N+1):
+        v_j = []
+        for k in range(0, N+1):
+            v_j += [max(K-s_i_j_k(N, j, k), 0)]
+        v0 += [v_j]
+    return v0
+
+
+v = [initialize_v()]
+
+
+def update_v(v0):
+    for i in range(0, N, -1):
+        v_i = []
+        for j in range(0, i+1):
+            v_i_j = []
+            for k in range(0, i+1):
+                v_i_j = max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
+                            q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
+                            v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
+                                k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)]))
+            v_i += [v_i_j]
+        v0 = [v_i] + v0
+    return v0
