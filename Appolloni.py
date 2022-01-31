@@ -137,7 +137,7 @@ for i in range(0,N,-1):
     for j in range(0,i+1):
         v_i_j=[]
         for k in range(0, i+1):
-            v_i_j=max(max((K-S_i_j_k(i,j,k)),0),np.exp(-r_i_k(i,k)*h)*(q_i_ju_ku(i,j,k)*v[0][j_u_i_j_k(i,j,k)][k_u_i_k(i,k)]+q_i_ju_kd(i,j,k)*v[0][j_u_i_j_k(i,j,k)][k_d_i_k(i,k)]+q_i_jd_ku(i,j,k)*v[0][j_d_i_j_k(i,j,k)][k_u_i_k(i,k)]+ q_i_ju_kd(i,j,k)*v[0][j_d_i_j_k(i,j,k)][k_d_i_k(i,k)]))
+            v_i_j=max(max((K-S_i_j_k(i,j,k)),0),np.exp(-r_i_k(i,k)*h)*(q_i_ju_ku(i,j,k)*v[0][j_u_i_j_k(i,j,k)][k_u_i_k(i,k)]+q_i_ju_kd(i,j,k)*v[0][j_u_i_j_k(i,j,k)][k_d_i_k(i,k)]+q_i_jd_ku(i,j,k)*v[0][j_d_i_j_k(i,j,k)][k_u_i_k(i,k)]+ q_i_jd_kd(i,j,k)*v[0][j_d_i_j_k(i,j,k)][k_d_i_k(i,k)]))
         v_i+=[v_i_j]
     v=[v_i]+v
 
