@@ -138,3 +138,4 @@ def r_i_k(i, k):
         return pow(R[i][k]*sigma_r, 2)/4
     else:
         return 0
+
