@@ -168,3 +168,7 @@ def update_v(v0):
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
+
+
+if __name__ == '__main__':
+    print(v[0][0][0])
