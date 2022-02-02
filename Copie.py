@@ -2,15 +2,15 @@ import numpy as np
 
 # Constants of our problem
 sigma_s = 0.25    # constant stock price volatility
-sigma_r = 0.08     # positive constant
-kappa = 0.5         # reversion speed
+sigma_r = 3.0     # positive constant
+kappa = 0.5       # reversion speed
 S_0 = 100         # positive
-r_0 = 0.06           # positive
-theta = 0.1      # long term reversion target
-rho = -0.25         # correlation between Z_S and Z_r
-T = 1            # time to maturity
-N = 50           # Number of intervals
-K = 100         # Strike of the American Put Option
+r_0 = 0.06        # positive
+theta = 0.1       # long term reversion target
+rho = -0.25       # correlation between Z_S and Z_r
+T = 1             # time to maturity
+N = 50            # Number of intervals
+K = 100           # Strike of the American Put Option
 
 # The Wei and Hilliard-Schwartz-Tucker procedures
 h = T/N
@@ -56,15 +56,19 @@ R, Y, = init_r_y()
 # Function to compute probabilities and movement
 def k_d_i_k(i, k):
     k_d = -1
-    for k_star in range(0, i+2):
+    for k_star in range(0, i+1):
         if R[i][k]+mu_r(R[i][k])*h >= R[i+1][k_star]:
             if k_star > k_d:
                 k_d = k_star
     if k_d == -1:
-        return k + int((mu_r(R[i][k])*pow(h, 0.5)+1)/2)      # doute sur la def de int à checker
+        return i
 
     else:
         return k_d
+
+
+def k_d_i_k2(i, k):
+    return int(k+np.floor((mu_r(R[i][k])*pow(h, 1/2)+1)/2))
 
 
 def k_u_i_k(i, k):
@@ -78,14 +82,18 @@ def p_i_k(i, k):
 
 def j_d_i_j_k(i, j, k):
     j_d = -1
-    for j_star in range(0, i+2):
-        if Y[i][j]+mu_y(Y[i][k])*h >= Y[i+1][j_star]:
+    for j_star in range(0, i+1):
+        if Y[i][j]+mu_y(R[i][k])*h >= Y[i+1][j_star]:
             if j_star > j_d:
                 j_d = j_star
     if j_d == -1:
-        return j + int((mu_y(Y[i][k])*pow(h, 0.5)+1)/2)     # doute sur la def de int à checker
+        return i
     else:
         return j_d
+
+
+def j_d_i_j_k2(i, j, k):
+    return int(j+np.floor((mu_y(R[i][k])*pow(h, 1/2)+1)/2))
 
 
 def j_u_i_j_k(i, j, k):
@@ -127,17 +135,8 @@ def q_i_jd_ku(i, j, k):
     return p_i_k(i, k)*(1-p_i_j_k(i, j, k))
 
 
-# The robust tree algorithm
-
-def new_mu_r(r):
-    return kappa*(theta - r)
-
-
 def q_i_jd_kd(i, j, k):
     return (1-p_i_k(i, k))*(1-p_i_j_k(i, j, k))
-
-
-U_0 = np.log(S_0)/sigma_s
 
 
 # Functions for the joint evolution of the processes r and S
@@ -150,6 +149,47 @@ def r_i_k(i, k):
         return pow(R[i][k]*sigma_r, 2)/4
     else:
         return 0
+
+
+# backward dynamic programming for American put option #
+def initialize_v():
+    v0 = []
+    for j in range(0, N+1):
+        v_j = []
+        for k in range(0, N+1):
+            v_j += [max(K-s_i_j_k(N, j, k), 0)]
+        v0 += [v_j]
+    return v0
+
+
+v = [initialize_v()]
+
+
+def update_v(v0):
+    for i in range(N-1, -1, -1):
+        v_i = []
+        for j in range(0, i+1):
+            v_i_j = []
+            for k in range(0, i+1):
+                #print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
+                v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
+                            q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
+                            v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
+                                k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)]))]
+            v_i += [v_i_j]
+        v0 = [v_i] + v0
+    return v0
+
+
+#v = update_v(v)
+
+
+# The robust tree algorithm
+def new_mu_r(r):
+    return kappa*(theta - r)
+
+
+U_0 = np.log(S_0)/sigma_s
 
 
 # lattice construction #
@@ -243,35 +283,6 @@ def j_u_new_i_j_k(i, j, k):
         return j_u
 
 
-# backward dynamic programming for American put option #
-def initialize_v():
-    v0 = []
-    for j in range(0, N+1):
-        v_j = []
-        for k in range(0, N+1):
-            v_j += [max(K-s_i_j_k(N, j, k), 0)]
-        v0 += [v_j]
-    return v0
-
-
-v = [initialize_v()]
-
-
-def update_v(v0):
-    for i in range(0, N, -1):
-        v_i = []
-        for j in range(0, i+1):
-            v_i_j = []
-            for k in range(0, i+1):
-                v_i_j = max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
-                            q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
-                            v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
-                                k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)]))
-            v_i += [v_i_j]
-        v0 = [v_i] + v0
-    return v0
-
-
 def p_new_i_j_k(i, j, k):
     return max(0, min(1, (mu_s(r_i_k(i, k), s_new[i][j]) * h + s_new[i][j] - s_new[i + 1][j_d_new_i_j_k(i, j, k)]) / (
                 s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i + 1][j_d_new_i_j_k(i, j, k)])))
@@ -300,5 +311,46 @@ def transition_probabilities(i, j, k):
     return np.dot(np.invert(a), b)
 
 
+# backward dynamic programming for American put option #
+def initialize_v_new():
+    v0 = []
+    for j in range(0, N+1):
+        v_j = []
+        for k in range(0, N+1):
+            v_j += [max(K-s_new[N][j], 0)]
+        v0 += [v_j]
+    return v0
+
+
+v_new = [initialize_v_new()]
+
+
+def update_v_new(v0):
+    for i in range(N-1, -1, -1):
+        v_i = []
+        for j in range(0, i+1):
+            v_i_j = []
+            for k in range(0, i+1):
+                print(i)
+                print(j)
+                proba=transition_probabilities(i, j, k)
+                q_i_ju_ku0 = proba[0]
+                q_i_ju_kd0 = proba[1]
+                q_i_jd_ku0 = proba[2]
+                q_i_jd_kd0 = proba[3]
+                # print(j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k))
+                v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(i, k) * h) * (
+                            q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
+                            v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
+                            v0[0][j_d_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_jd_kd0 *
+                            v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)]))]
+            v_i += [v_i_j]
+        v0 = [v_i] + v0
+    return v0
+
+
+v_new = update_v_new(v_new)
+
+
 if __name__ == '__main__':
-    print(v[0][0][0])
+    print(v_new[0][0][0])
