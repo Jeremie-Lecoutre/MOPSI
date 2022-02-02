@@ -42,10 +42,10 @@ def init_r_y():
         r_i = []
         y_i = []
         for k in range(0, i+1):
-            r_i += [R_0+(2*k-i)*pow(h, 0.5)]
-            y_i += [Y_0 + (2 * k - i) * pow(h, 0.5)]
-        r += [r_i]
-        y += [y_i]
+            r_i.append(R_0+(2*k-i)*pow(h, 0.5))
+            y_i.append(Y_0 + (2 * k - i) * pow(h, 0.5))
+        r.append(r_i)
+        y.append(y_i)
     return r, y
 
 
@@ -60,7 +60,7 @@ def k_d_i_k(i, k):
             if k_star > k_d:
                 k_d = k_star
     if k_d == -1:
-        return k + int((mu_r(R[i][k])*pow(h, 0.5)+1)/2)      # doute sur la def de int à checker
+        return k + np.floor((mu_r(R[i][k])*pow(h, 0.5)+1)/2)
     else:
         return k_d
 
@@ -81,7 +81,7 @@ def j_d_i_j_k(i, j, k):
             if j_star > j_d:
                 j_d = j_star
     if j_d == -1:
-        return j + int((mu_y(Y[i][k])*pow(h, 0.5)+1)/2)     # doute sur la def de int à checker
+        return j + np.floor((mu_y(Y[i][k])*pow(h, 0.5)+1)/2)
     else:
         return j_d
 
@@ -141,7 +141,7 @@ def r_i_k(i, k):
         return 0
 
 
-# backward dynamic programming for American put option #
+# backward dynamic programming for American put option
 def initialize_v():
     v0 = []
     for j in range(0, N+1):
