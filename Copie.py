@@ -1,7 +1,4 @@
 import numpy as np
-# import matplotlib.pyplot as plt
-# import scipy.integrate as integrate
-# import random as rd
 
 # Constants of our problem
 sigma_s = 0.25    # constant stock price volatility
