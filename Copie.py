@@ -129,6 +129,10 @@ def q_i_jd_ku(i, j, k):
 
 # The robust tree algorithm
 
+def new_mu_r(r):
+    return kappa*(theta - r)
+
+
 def q_i_jd_kd(i, j, k):
     return (1-p_i_k(i, k))*(1-p_i_j_k(i, j, k))
 
@@ -169,7 +173,7 @@ R0, U0 = initialize_lattice()
 def k_d_new_i_k(i, k):
     k_d = -1
     for k_star in range(0, k+1):
-        if R0[i][k]+mu_r(R0[i][k])*h >= R0[i + 1][k_star]:
+        if R0[i][k]+new_mu_r(R0[i][k])*h >= R0[i + 1][k_star]:
             if k_star > k_d:
                 k_d = k_star
     if k_d == -1:
@@ -181,7 +185,7 @@ def k_d_new_i_k(i, k):
 def k_u_new_i_k(i, k):
     k_d = -1
     for k_star in range(k+1, i+2):
-        if R0[i][k]+mu_r(R0[i][k])*h <= R0[i + 1][k_star]:
+        if R0[i][k]+new_mu_r(R0[i][k])*h <= R0[i + 1][k_star]:
             if k_star > k_d:
                 k_d = k_star
     if k_d == -1:
@@ -191,7 +195,7 @@ def k_u_new_i_k(i, k):
 
 
 def p_new_i_k(i, k):
-    return max(0, min(1, (mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
+    return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
             R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(i, k)])))
 
 
@@ -274,7 +278,7 @@ def p_new_i_j_k(i, j, k):
 
 
 def m_i_ju_ku(i, j, k):
-    return (s_new[i+1][j_u_new_i_j_k(i, j, k)]-s_new[i][j])*(r_i_k(i+1, k_u_new_i_k(i, k))-r_i_k(i, k))
+    return (s_new[i+1][j_u_new_i_j_k(i, j, k)]-s_new[i][j])*(r_i_k(i+1, k_u_new_i_k(i, k)) - r_i_k(i, k))
 
 
 def m_i_jd_ku(i, j, k):
