@@ -1,5 +1,6 @@
 import numpy as np
-
+import numpy.linalg as alg
+import matplotlib.pyplot as plt
 # Constants of our problem
 sigma_s = 0.25    # constant stock price volatility
 sigma_r = 3.0     # positive constant
@@ -171,7 +172,7 @@ def update_v(v0):
         for j in range(0, i+1):
             v_i_j = []
             for k in range(0, i+1):
-                #print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
+                # print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
                 v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                             q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
                             v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
@@ -181,7 +182,7 @@ def update_v(v0):
     return v0
 
 
-#v = update_v(v)
+v = update_v(v)
 
 
 # The robust tree algorithm
@@ -269,11 +270,13 @@ def j_d_new_i_j_k(i, j, k):
                 j_d = j_star
     if j_d == -1:
         return 0
+    else:
+        return j_d
 
 
 def j_u_new_i_j_k(i, j, k):
     j_u = -1
-    for j_star in range(j+1, N+1):
+    for j_star in range(j+1, i+2):
         if s_new[i][j]+mu_s(s_new[i][j], R0[i][k])*h <= s_new[i + 1][j_star]:
             if j_star > j_u:
                 j_u = j_star
@@ -305,10 +308,10 @@ def m_i_jd_kd(i, j, k):
 
 
 def transition_probabilities(i, j, k):
-    a = np.array([1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 1, 1],
-                 [m_i_ju_ku(i, j, k), m_i_ju_kd(i, j, k), m_i_jd_ku(i, j, k), m_i_jd_kd(i, j, k)])
+    a = np.array([[1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 1, 1],
+                 [m_i_ju_ku(i, j, k), m_i_ju_kd(i, j, k), m_i_jd_ku(i, j, k), m_i_jd_kd(i, j, k)]])
     b = np.array([p_new_i_j_k(i, j, k), p_new_i_k(i, k), 1, rho*sigma_r*pow(r_i_k(i, k), 0.5)*sigma_s*s_new[i][j]*h])
-    return np.dot(np.invert(a), b)
+    return alg.solve(a, b)
 
 
 # backward dynamic programming for American put option #
@@ -331,13 +334,11 @@ def update_v_new(v0):
         for j in range(0, i+1):
             v_i_j = []
             for k in range(0, i+1):
-                print(i)
-                print(j)
-                proba=transition_probabilities(i, j, k)
-                q_i_ju_ku0 = proba[0]
-                q_i_ju_kd0 = proba[1]
-                q_i_jd_ku0 = proba[2]
-                q_i_jd_kd0 = proba[3]
+                probability = transition_probabilities(i, j, k)
+                q_i_ju_ku0 = probability[0]
+                q_i_ju_kd0 = probability[1]
+                q_i_jd_ku0 = probability[2]
+                q_i_jd_kd0 = probability[3]
                 # print(j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k))
                 v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(i, k) * h) * (
                             q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
@@ -349,8 +350,20 @@ def update_v_new(v0):
     return v0
 
 
+def plot_tree():
+    for i in range(0, N+1):
+        for j in range(0, i+1):
+            for k in range(0, i+1):
+                plt.scatter(i, v[i][j][k], s=1, color='BLACK')
+    plt.show()
+    return 0
+
+
 v_new = update_v_new(v_new)
 
 
 if __name__ == '__main__':
+    print(len(v))
+    print(v[0][0][0])
     print(v_new[0][0][0])
+    plot_tree()
