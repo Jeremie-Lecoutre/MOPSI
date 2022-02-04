@@ -1,9 +1,10 @@
 import numpy as np
 import numpy.linalg as alg
 import matplotlib.pyplot as plt
+
 # Constants of our problem
 sigma_s = 0.25    # constant stock price volatility
-sigma_r = 3.0     # positive constant
+sigma_r = 0.08     # positive constant
 kappa = 0.5       # reversion speed
 S_0 = 100         # positive
 r_0 = 0.06        # positive
@@ -152,7 +153,7 @@ def r_i_k(i, k):
         return 0
 
 
-# backward dynamic programming for American put option #
+# backward dynamic programming for American put option
 def initialize_v():
     v0 = []
     for j in range(0, N+1):
@@ -172,7 +173,6 @@ def update_v(v0):
         for j in range(0, i+1):
             v_i_j = []
             for k in range(0, i+1):
-                # print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
                 v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                             q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
                             v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
@@ -325,7 +325,7 @@ def initialize_v_new():
     return v0
 
 
-v_new = [initialize_v_new()]
+# v_new = [initialize_v_new()]
 
 
 def update_v_new(v0):
@@ -339,7 +339,6 @@ def update_v_new(v0):
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
                 q_i_jd_kd0 = probability[3]
-                # print(j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k))
                 v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(i, k) * h) * (
                             q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
                             v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
@@ -359,11 +358,11 @@ def plot_tree():
     return 0
 
 
-v_new = update_v_new(v_new)
+# v_new = update_v_new(v_new)
 
 
 if __name__ == '__main__':
     print(len(v))
     print(v[0][0][0])
-    print(v_new[0][0][0])
+    # print(v_new[0][0][0])
     plot_tree()
