@@ -114,6 +114,8 @@ def plot_lattice_movement_R(i,k):
     plt.scatter(i+1, R[i+1][k_u_i_k(i,k)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, R[i][k], s=20, marker ='^', color='GREEN')
     plt.scatter(i+1, R[i+1][k_d_i_k(i, k)], s=20,marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de R")
+    plt.xlabel("temps")
     plt.show()
     return 0
 
@@ -124,6 +126,8 @@ def plot_lattice_movement_Y(i,j,k):
     plt.scatter(i+1, Y[i+1][j_u_i_j_k(i,j,k)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, Y[i][j], s=20, marker ='^',color='GREEN')
     plt.scatter(i+1, Y[i+1][j_d_i_j_k(i,j,k)], s=20,marker='o' , color='RED')
+    plt.title("Mouvement sur la lattice de Y")
+    plt.xlabel("temps")
     plt.show()
     return 0
 
@@ -234,6 +238,11 @@ def plot_simulation():
     data=simulation()
     for i in range(0,len(data)):
         plt.scatter(i,data[i], s=1, color = 'RED')
+    plt.title("Simulation de l'évolution du prix de l'action")
+    plt.xlabel("temps")
+    plt.ylabel("Valeur de l'action")
+    plt.show()
+    return 0
 
 
 # The robust tree algorithm
@@ -298,6 +307,8 @@ def new_plot_lattice_movement_R0(i,k):
     plt.scatter(i+1, R0[i+1][k_u_new_i_k(i,k)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, R0[i][k], s=20, marker ='^', color='GREEN')
     plt.scatter(i+1, R0[i+1][k_d_new_i_k(i, k)], s=20,marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de R0")
+    plt.xlabel("temps")
     plt.show()
     return 0
 
@@ -308,6 +319,8 @@ def plot_lattice_movement_U0(i,j,k):
     plt.scatter(i+1, U0[i+1][j_u_new_i_j_k(i,j,k)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, U0[i][j], s=20, marker ='^',color='GREEN')
     plt.scatter(i+1, U0[i+1][j_d_new_i_j_k(i,j,k)], s=20,marker='o' , color='RED')
+    plt.title("Mouvement sur la lattice de U0")
+    plt.xlabel("temps")
     plt.show()
     return 0
 # bivariate tree#
@@ -472,6 +485,11 @@ def new_plot_simulation():
     data=simulation()
     for i in range(0,len(data)):
         plt.scatter(i,data[i], s=1, color = 'RED')
+    plt.title("Simulation de l'évolution du prix de l'action")
+    plt.xlabel("temps")
+    plt.ylabel("Valeur de l'action")
+    plt.show()
+    return 0
 
 #v_new = update_v_new(v_new)
 
