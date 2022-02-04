@@ -399,6 +399,41 @@ def plot_ku_kd():
     plt.show()
     return 0
 
+# Plot of a simulation for the action
+def new_jump(i, j, k):
+    p = rd.random()
+    probability = transition_probabilities(i, j, k)
+    q_i_ju_ku0 = probability[0]
+    q_i_ju_kd0 = probability[1]
+    q_i_jd_ku0 = probability[2]
+    q_i_jd_kd0 = probability[3]
+    q_sum = q_i_ju_ku0
+    if p < q_sum:
+        return s_new[i+1,j_u_new_i_j_k(i,j,k)], i+1, j_u_new_i_j_k(i,j,k), k_u_new_i_k(i,k)
+    if q_sum < p < q_sum + q_i_ju_kd0:
+        return s_new[i+1,j_u_new_i_j_k(i,j,k)], i+1, j_u_new_i_j_k(i,j,k), k_d_new_i_k(i,k)
+    q_sum += q_i_ju_kd0
+    if q_sum < p < q_sum + q_i_jd_ku0:
+        return s_new[i+1,j_d_new_i_j_k(i,j,k)], i+1, j_d_new_i_j_k(i,j,k), k_u_new_i_k(i,k)
+    q_sum += q_i_jd_ku0
+    if q_sum < p <q_sum+q_i_jd_kd0:
+        return s_new[i+1,j_d_new_i_j_k(i,j,k)], i+1, j_d_new_i_j_k(i,j,k), k_d_new_i_k(i,k)
+
+def new_simulation():
+    data=[S_0]
+    i=0
+    j=0
+    k=0
+    while(i<N):
+        s,i,j,k= new_jump(i,j,k)
+        data+=[s]
+    return data
+
+def new_plot_simulation():
+    data=simulation()
+    for i in range(0,len(data)):
+        plt.scatter(i,data[i], s=1, color = 'RED')
+
 #v_new = update_v_new(v_new)
 
 
@@ -412,6 +447,6 @@ if __name__ == '__main__':
        #         print(v[i][j][k])
         #        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
     #plt.show()
-    plot_simulation()
+    new_plot_simulation()
     plt.show()
 
