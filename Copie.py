@@ -290,7 +290,26 @@ def p_new_i_k(i, k):
     return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
             R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(i, k)])))
 
+# Ploting the different lattice and movement upon them
+def new_plot_lattice_movement_R0(i,k):
+    for l in range(0, N+1):
+        for m in range(0,l+1):
+            plt.scatter(l, R0[l][m], s=1, color='BLACK')
+    plt.scatter(i+1, R0[i+1][k_u_new_i_k(i,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i, R0[i][k], s=20, marker ='^', color='GREEN')
+    plt.scatter(i+1, R0[i+1][k_d_new_i_k(i, k)], s=20,marker='o', color='RED')
+    plt.show()
+    return 0
 
+def plot_lattice_movement_U0(i,j,k):
+    for l in range(0, N+1):
+        for m in range(0,l+1):
+            plt.scatter(l, U0[l][m], s=1, color='BLACK')
+    plt.scatter(i+1, U0[i+1][j_u_new_i_j_k(i,j,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i, U0[i][j], s=20, marker ='^',color='GREEN')
+    plt.scatter(i+1, U0[i+1][j_d_new_i_j_k(i,j,k)], s=20,marker='o' , color='RED')
+    plt.show()
+    return 0
 # bivariate tree#
 
 def initialize_tree_new():
@@ -469,5 +488,7 @@ if __name__ == '__main__':
     #plt.show()
     #new_plot_simulation()
     #plt.show()
-    plot_lattice_movement_R(25, 9)
-    plot_lattice_movement_Y(25, 9, 15)
+    #plot_lattice_movement_R(25, 9)
+    #plot_lattice_movement_Y(25, 9, 15)
+    new_plot_lattice_movement_R0(25, 9)
+    plot_lattice_movement_U0(25, 9, 15)
