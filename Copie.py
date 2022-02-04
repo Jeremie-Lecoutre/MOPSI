@@ -111,9 +111,9 @@ def plot_lattice_movement_R(i,k):
     for l in range(0, N+1):
         for m in range(0,l+1):
             plt.scatter(l, R[l][m], s=1, color='BLACK')
-    plt.scatter(i,k_u_i_k(i,k), s=1.5, color ='BLUE')
-    plt.scatter(i, R[i][k], s=1.5, color='GREEN')
-    plt.scatter(i, k_d_i_k(i, k), s=1.5, color='RED')
+    plt.scatter(i+1, R[i+1][k_u_i_k(i,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i, R[i][k], s=20, marker ='^', color='GREEN')
+    plt.scatter(i+1, R[i+1][k_d_i_k(i, k)], s=20,marker='o', color='RED')
     plt.show()
     return 0
 
@@ -121,9 +121,9 @@ def plot_lattice_movement_Y(i,j,k):
     for l in range(0, N+1):
         for m in range(0,l+1):
             plt.scatter(l, Y[l][m], s=1, color='BLACK')
-    plt.scatter(i,j_u_i_j_k(i,j,k), s=1.5, color ='BLUE')
-    plt.scatter(i, Y[i][j], s=1.5, color='GREEN')
-    plt.scatter(i, j_u_i_j_k(i,j,k), s=1.5, color='RED')
+    plt.scatter(i+1, Y[i+1][j_u_i_j_k(i,j,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i, Y[i][j], s=20, marker ='^',color='GREEN')
+    plt.scatter(i+1, Y[i+1][j_d_i_j_k(i,j,k)], s=20,marker='o' , color='RED')
     plt.show()
     return 0
 
