@@ -16,6 +16,7 @@ N = 50  # Number of intervals
 K = 100  # Strike of the American Put Option
 
 # The Wei and Hilliard-Schwartz-Tucker procedures
+
 h = T / N
 X_0 = np.log(S_0) / sigma_s
 R_0 = 2 * pow(r_0, 0.5) / sigma_r
@@ -109,6 +110,33 @@ def p_i_j_k(i, j, k):
             Y[i + 1][j_u_i_j_k(i, j, k)] - Y[i + 1][j_d_i_j_k(i, j, k)])))
 
 
+# Ploting the different lattice and movement upon them
+def plot_lattice_movement_r(i, k):
+    for k in range(0, N + 1):
+        for m in range(0, k + 1):
+            plt.scatter(k, R[k][m], s=1, color='BLACK')
+    plt.scatter(i + 1, R[i + 1][k_u_i_k(i, k)], s=20, marker='o', color='BLUE')
+    plt.scatter(i, R[i][k], s=20, marker='^', color='GREEN')
+    plt.scatter(i + 1, R[i + 1][k_d_i_k(i, k)], s=20, marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de R")
+    plt.xlabel("temps")
+    plt.show()
+    return 0
+
+
+def plot_lattice_movement_y(i, j, k):
+    for k in range(0, N + 1):
+        for m in range(0, k + 1):
+            plt.scatter(k, Y[k][m], s=1, color='BLACK')
+    plt.scatter(i + 1, Y[i + 1][j_u_i_j_k(i, j, k)], s=20, marker='o', color='BLUE')
+    plt.scatter(i, Y[i][j], s=20, marker='^', color='GREEN')
+    plt.scatter(i + 1, Y[i + 1][j_d_i_j_k(i, j, k)], s=20, marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de Y")
+    plt.xlabel("temps")
+    plt.show()
+    return 0
+
+
 # Bivariate tree
 def initialize_tree():
     tree = []
@@ -155,7 +183,7 @@ def r_i_k(i, k):
         return 0
 
 
-# backward dynamic programming for American put option
+# backward dynamic programming for American put option #
 def initialize_v():
     v0 = []
     for j in range(0, N + 1):
@@ -175,6 +203,7 @@ def update_v(v0):
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
+                # print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
                 v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                         q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
                         v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
@@ -217,6 +246,11 @@ def plot_simulation():
     data = simulation()
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
+    plt.title("Simulation de l'évolution du prix de l'action")
+    plt.xlabel("temps")
+    plt.ylabel("Valeur de l'action")
+    plt.show()
+    return 0
 
 
 # The robust tree algorithm
@@ -324,8 +358,34 @@ def transition_probabilities(i, j, k):
     return alg.solve(a, b)
 
 
-# bivariate tree#
+# Plotting the different lattice and movement upon them
+def new_plot_lattice_movement_r0(i, k):
+    for k in range(0, N + 1):
+        for m in range(0, k + 1):
+            plt.scatter(k, R0[k][m], s=1, color='BLACK')
+    plt.scatter(i + 1, R0[i + 1][k_u_new_i_k(i, k)], s=20, marker='o', color='BLUE')
+    plt.scatter(i, R0[i][k], s=20, marker='^', color='GREEN')
+    plt.scatter(i + 1, R0[i + 1][k_d_new_i_k(i, k)], s=20, marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de R0")
+    plt.xlabel("temps")
+    plt.show()
+    return 0
 
+
+def plot_lattice_movement_u0(i, j, k):
+    for k in range(0, N + 1):
+        for m in range(0, k + 1):
+            plt.scatter(k, U0[k][m], s=1, color='BLACK')
+    plt.scatter(i + 1, U0[i + 1][j_u_new_i_j_k(i, j, k)], s=20, marker='o', color='BLUE')
+    plt.scatter(i, U0[i][j], s=20, marker='^', color='GREEN')
+    plt.scatter(i + 1, U0[i + 1][j_d_new_i_j_k(i, j, k)], s=20, marker='o', color='RED')
+    plt.title("Mouvement sur la lattice de U0")
+    plt.xlabel("temps")
+    plt.show()
+    return 0
+
+
+# bivariate tree
 def initialize_tree_new():
     s_new0 = []
     tree_new0 = []
@@ -371,6 +431,7 @@ def update_v_new(v0):
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
                 q_i_jd_kd0 = probability[3]
+                # print(j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k))
                 v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(i, k) * h) * (
                         q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
                         v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
@@ -383,9 +444,9 @@ def update_v_new(v0):
 
 """
 def plot_tree():
-    for i in range(0, N+1):
-        for j in range(0, i+1):
-            for k in range(0, i+1):
+    for i in range(0, N + 1):
+        for j in range(0, i + 1):
+            for k in range(0, i + 1):
                 plt.scatter(i, v[i][j][k], s=1, color='BLACK')
     plt.show()
     return 0
@@ -401,9 +462,6 @@ def plot_ku_kd():
             plt.scatter(i, k_d_i_k(i, k), s=1, color='RED', label='k_d')
     plt.show()
     return 0
-
-
-# v_new = update_v_new(v_new)
 
 
 # Plot of a simulation for the action
@@ -442,6 +500,11 @@ def new_plot_simulation():
     data = simulation()
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
+    plt.title("Simulation de l'évolution du prix de l'action")
+    plt.xlabel("temps")
+    plt.ylabel("Valeur de l'action")
+    plt.show()
+    return 0
 
 
 # v_new = update_v_new(v_new)
@@ -452,10 +515,14 @@ if __name__ == '__main__':
     # print(v[0][0][0])
     # print(v_new[0][0][0])
     # for i in range(0, N + 1):
-    #  for j in range(0, i + 1):
+    #   for j in range(0, i + 1):
     #      for k in range(0, i + 1):
     #         print(v[i][j][k])
     #        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
     # plt.show()
-    new_plot_simulation()
-    plt.show()
+    # new_plot_simulation()
+    # plt.show()
+    # plot_lattice_movement_r(25, 9)
+    # plot_lattice_movement_y(25, 9, 15)
+    new_plot_lattice_movement_r0(25, 9)
+    plot_lattice_movement_u0(25, 9, 15)

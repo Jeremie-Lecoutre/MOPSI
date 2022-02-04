@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="Corrections typographiques">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Copie.py" beforeDir="false" afterPath="$PROJECT_DIR$/Copie.py" afterDir="false" />
     </list>
+=======
+    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="" />
+>>>>>>> 505f570b5a67b2bb6cc962fe0e5baa014c4db3a6
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,9 +56,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\rapha\PycharmProjects\pythonProject\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Copie.py" />
@@ -187,7 +191,49 @@
       <option name="project" value="LOCAL" />
       <updated>1643640263552</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Corrections typographiques">
+      <created>1643968399073</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1643968399073</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Corrections typographiques">
+      <created>1643970230628</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1643970230628</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Corrections typographiques">
+      <created>1643971557075</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1643971557075</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Corrections typographiques">
+      <created>1643974989985</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1643974989985</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Corrections typographiques">
+      <created>1643975267060</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1643975267060</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Corrections typographiques">
+      <created>1643976278569</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1643976278569</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
