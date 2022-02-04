@@ -20,6 +20,7 @@ h = T / N
 X_0 = np.log(S_0) / sigma_s
 R_0 = 2 * pow(r_0, 0.5) / sigma_r
 Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
+U_0 = np.log(S_0) / sigma_s
 
 
 def mu_x(r):
@@ -223,9 +224,6 @@ def new_mu_r(r):
     return kappa * (theta - r)
 
 
-U_0 = np.log(S_0) / sigma_s
-
-
 # lattice construction #
 def initialize_lattice():
     r0 = []
@@ -268,33 +266,6 @@ def k_u_new_i_k(i, k):
         return k_d
 
 
-def p_new_i_k(i, k):
-    return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
-            R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(i, k)])))
-
-
-# bivariate tree#
-
-def initialize_tree_new():
-    s_new0 = []
-    tree_new0 = []
-    for i in range(0, N + 1):
-        tree_new_i = []
-        s_new_i_j = []
-        for j in range(0, i + 1):
-            tree_new_i_j = []
-            s_new_i_j += [np.exp(sigma_s * U0[i][j])]
-            for k in range(0, i + 1):
-                tree_new_i_j += [(R0[i][k], np.exp(sigma_s * U0[i][j]))]
-            tree_new_i += [tree_new_i_j]
-        tree_new0 += [tree_new_i]
-        s_new0 += [s_new_i_j]
-    return s_new0, tree_new0
-
-
-s_new, tree_new = initialize_tree_new()
-
-
 def j_d_new_i_j_k(i, j, k):
     j_d = -1
     for j_star in range(0, j + 1):
@@ -317,6 +288,11 @@ def j_u_new_i_j_k(i, j, k):
         return i + 1
     else:
         return j_u
+
+
+def p_new_i_k(i, k):
+    return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
+            R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(i, k)])))
 
 
 def p_new_i_j_k(i, j, k):
@@ -346,6 +322,28 @@ def transition_probabilities(i, j, k):
     b = np.array(
         [p_new_i_j_k(i, j, k), p_new_i_k(i, k), 1, rho * sigma_r * pow(r_i_k(i, k), 0.5) * sigma_s * s_new[i][j] * h])
     return alg.solve(a, b)
+
+
+# bivariate tree#
+
+def initialize_tree_new():
+    s_new0 = []
+    tree_new0 = []
+    for i in range(0, N + 1):
+        tree_new_i = []
+        s_new_i_j = []
+        for j in range(0, i + 1):
+            tree_new_i_j = []
+            s_new_i_j += [np.exp(sigma_s * U0[i][j])]
+            for k in range(0, i + 1):
+                tree_new_i_j += [(R0[i][k], np.exp(sigma_s * U0[i][j]))]
+            tree_new_i += [tree_new_i_j]
+        tree_new0 += [tree_new_i]
+        s_new0 += [s_new_i_j]
+    return s_new0, tree_new0
+
+
+s_new, tree_new = initialize_tree_new()
 
 
 # backward dynamic programming for American put option #
