@@ -1,9 +1,10 @@
 import numpy as np
 import numpy.linalg as alg
 import matplotlib.pyplot as plt
+import random as rd
 # Constants of our problem
 sigma_s = 0.25    # constant stock price volatility
-sigma_r = 3.0     # positive constant
+sigma_r = 0.5     # positive constant
 kappa = 0.5       # reversion speed
 S_0 = 100         # positive
 r_0 = 0.06        # positive
@@ -163,7 +164,7 @@ def initialize_v():
     return v0
 
 
-v = [initialize_v()]
+#v = [initialize_v()]
 
 
 def update_v(v0):
@@ -182,7 +183,37 @@ def update_v(v0):
     return v0
 
 
-v = update_v(v)
+#v = update_v(v)
+
+# Plot of a simulation for the action
+def jump(i, j, k):
+    p = rd.random()
+    q_sum = q_i_jd_kd(i, j, k)
+    if p < q_sum:
+        return s_i_j_k(i+1,j_d_i_j_k(i,j,k),k_d_i_k(i,k)), i+1, j_d_i_j_k(i,j,k), k_d_i_k(i,k)
+    if q_sum < p < q_sum + q_i_jd_ku(i,j,k):
+        return s_i_j_k(i+1,j_d_i_j_k(i,j,k),k_u_i_k(i,k)), i+1,j_d_i_j_k(i,j,k), k_u_i_k(i,k)
+    q_sum += q_i_jd_ku(i,j,k)
+    if q_sum < p < q_sum + q_i_ju_kd(i,j,k):
+        return s_i_j_k(i+1,j_u_i_j_k(i,j,k),k_d_i_k(i,k)),i+1,j_u_i_j_k(i,j,k), k_d_i_k(i,k)
+    q_sum += q_i_ju_kd(i,j,k)
+    if q_sum < p <q_sum+q_i_ju_ku(i,j,k):
+        return s_i_j_k(i+1,j_u_i_j_k(i,j,k),k_u_i_k(i,k)),i+1,j_u_i_j_k(i,j,k), k_u_i_k(i,k)
+
+def simulation():
+    data=[S_0]
+    i=0
+    j=0
+    k=0
+    while(i<N):
+        s,i,j,k=jump(i,j,k)
+        data+=[s]
+    return data
+
+def plot_simulation():
+    data=simulation()
+    for i in range(0,len(data)):
+        plt.scatter(i,data[i], s=1, color = 'RED')
 
 
 # The robust tree algorithm
@@ -325,7 +356,7 @@ def initialize_v_new():
     return v0
 
 
-v_new = [initialize_v_new()]
+#v_new = [initialize_v_new()]
 
 
 def update_v_new(v0):
@@ -358,12 +389,29 @@ def plot_tree():
     plt.show()
     return 0
 
+def plot_ku_kd():
+    for i in range(0, N):
+        for k in range(0, i+1):
+            plt.subplot(1,2,1)
+            plt.scatter(i, k_u_i_k(i, k), s=1, color='BLUE',label='k_u')
+            plt.subplot(1,2,2)
+            plt.scatter(i, k_d_i_k(i, k), s=1, color='RED',label='k_d')
+    plt.show()
+    return 0
 
-v_new = update_v_new(v_new)
+#v_new = update_v_new(v_new)
 
 
 if __name__ == '__main__':
-    print(len(v))
-    print(v[0][0][0])
-    print(v_new[0][0][0])
-    plot_tree()
+    #print(len(v))
+    #print(v[0][0][0])
+    #print(v_new[0][0][0])
+    #for i in range(0, N + 1):
+     #   for j in range(0, i + 1):
+      #      for k in range(0, i + 1):
+       #         print(v[i][j][k])
+        #        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
+    #plt.show()
+    plot_simulation()
+    plt.show()
+
