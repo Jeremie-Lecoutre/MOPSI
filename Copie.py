@@ -114,7 +114,7 @@ def p_i_j_k(i, j, k):
 def plot_lattice_movement_r(i, k):
     for l in range(0, N + 1):
         for m in range(0, l + 1):
-            plt.scatter(k, R[l][m], s=1, color='BLACK')
+            plt.scatter(l, R[l][m], s=1, color='BLACK')
     plt.scatter(i + 1, R[i + 1][k_u_i_k(i, k)], s=20, marker='o', color='BLUE')
     plt.scatter(i, R[i][k], s=20, marker='^', color='GREEN')
     plt.scatter(i + 1, R[i + 1][k_d_i_k(i, k)], s=20, marker='o', color='RED')
@@ -522,7 +522,7 @@ if __name__ == '__main__':
     # plt.show()
     # new_plot_simulation()
     # plt.show()
-    #plot_lattice_movement_r(10, 9)
-    #plot_lattice_movement_y(25, 9, 15)
+    plot_lattice_movement_r(10, 9)
+    plot_lattice_movement_y(25, 9, 15)
     new_plot_lattice_movement_r0(25, 9)
     plot_lattice_movement_u0(25, 9, 15)
