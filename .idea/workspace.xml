@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-<<<<<<< HEAD
-    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="Corrections typographiques">
+    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Copie.py" beforeDir="false" afterPath="$PROJECT_DIR$/Copie.py" afterDir="false" />
     </list>
-=======
-    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="" />
->>>>>>> 505f570b5a67b2bb6cc962fe0e5baa014c4db3a6
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
