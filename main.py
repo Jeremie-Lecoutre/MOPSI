@@ -111,12 +111,14 @@ def initialize_probability(v, x, k_u, k_d, j_u, j_d):
     p_d_x = [[] for n in tab_N]
     for n in tab_N[0:len(tab_N)-2]:
         for k in range(n+1):
-            p_u_v[n].append(max(0, min(1, (mu_v(v[n][k]) + v[n][k] - v[n + 1][k_d[n][k]]) / (
+            a = (max(0, min(1, (mu_v(v[n][k]) * h + v[n][k] - v[n + 1][k_d[n][k]]) / (
                     v[n + 1][k_u[n][k]] - v[n + 1][k_d[n][k]]))))
-            p_u_x[n].append(max(0, min(1, (mu_x(x[n][k]) + x[n][k] - x[n + 1][j_d[n][k]]) / (
+            p_u_v[n].append(a)
+            b=(max(0, min(1, (mu_x(x[n][k]) * h + x[n][k] - x[n + 1][j_d[n][k]]) / (
                     x[n + 1][j_u[n][k]] - x[n + 1][j_d[n][k]]))))
-            p_d_v[n].append(1 - p_u_v[n][k])
-            p_d_x[n].append(1 - p_u_x[n][k])
+            p_u_x[n].append(b)
+            p_d_v[n].append(1 - a)
+            p_d_x[n].append(1 - b)
     return p_u_v, p_d_v, p_u_x, p_d_x
 
 
@@ -172,16 +174,21 @@ def simulation():
 if __name__ == '__main__':
     V, X = initialize_v_x()
     k_u_test, k_d_test, j_u_test, j_d_test = initialize_min_max(V, X)
+    result_V, result_X = simulation()
     plt.subplot(1, 2, 1)
     for nn in tab_N:
         for kk in range(nn):
             plt.scatter(nn, V[nn][kk], s=1, color='BLACK')
+    for nn in range(0,len(tab_N)-1):
+        plt.scatter(nn, result_V[nn], s=20, marker='^', color='GREEN')
     plt.subplot(1, 2, 2)
     for nn in tab_N:
         for kk in range(nn):
             plt.scatter(nn, X[nn][kk], s=1, color='BLACK')
+    for nn in range(0, len(tab_N)-1):
+        plt.scatter(nn, result_X[nn], s=20, marker='^', color='GREEN')
     plt.show()
-    result_V, result_X = simulation()
+
     print(result_V)
     print(result_X)
 
