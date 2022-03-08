@@ -6,6 +6,12 @@ import random as rd
 Sigma_r = [0.08, 0.5, 1, 3]
 tab_N = [50, 100, 150, 200, 300]
 tab_T =[1, 2]
+import cv2
+import csv
+fichier = open("annuaire.csv", "wt")
+ecrivainCSV = csv.writer(fichier,delimiter=";")
+ecrivainCSV.writerow(["Paramètres","Prénom","Téléphone"])
+
 for valeur1 in tab_T:
     for valeur2 in Sigma_r:
         for valeur3 in tab_N:
@@ -127,8 +133,14 @@ for valeur1 in tab_T:
                 plt.scatter(i + 1, R[i + 1][k_d_i_k(i, k)], s=20, marker='o', color='RED')
                 plt.title("Mouvement sur la lattice de R")
                 plt.xlabel("temps")
+                nomplot = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+                    N) + ", sigma_r=" + str(sigma_r)
                 plt.show()
-                return 0
+                plt.savefig(nomplot)
+                return nomplot
+
+
+
 
 
             def plot_lattice_movement_y(i, j, k):
@@ -140,8 +152,11 @@ for valeur1 in tab_T:
                 plt.scatter(i + 1, Y[i + 1][j_d_i_j_k(i, j, k)], s=20, marker='o', color='RED')
                 plt.title("Mouvement sur la lattice de Y")
                 plt.xlabel("temps")
+                nomplot_lattice_y = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+                    N) + ", sigma_r=" + str(sigma_r)
                 plt.show()
-                return 0
+                plt.savefig(nomplot_lattice_y)
+                return nomplot_lattice_y
 
 
             # Bivariate tree
@@ -249,6 +264,9 @@ for valeur1 in tab_T:
                 return data
 
 
+            nom = "Simulation de l'évolution du prix de l'action avec: T=" + str(T) + ", N =" + str(
+                N) + ", sigma_r=" + str(sigma_r)
+
             def plot_simulation():
                 data = simulation()
                 for i in range(0, len(data)):
@@ -257,8 +275,11 @@ for valeur1 in tab_T:
                 plt.xlabel("temps")
                 plt.ylabel("Valeur de l'action")
                 plt.show()
-                return 0
+                plt.savefig(nom)
+                return nom
 
+
+            cv2.imwrite(nom, plot_simulation())
 
             # The robust tree algorithm
             def new_mu_r(r):
@@ -281,6 +302,7 @@ for valeur1 in tab_T:
 
 
             R0, U0 = initialize_lattice()
+
 
 
             def k_d_new_i_k(i, k):
@@ -366,6 +388,7 @@ for valeur1 in tab_T:
 
 
             # Plotting the different lattice and movement upon them
+
             def new_plot_lattice_movement_r0(i, k):
                 for l in range(0, N + 1):
                     for m in range(0, l + 1):
@@ -375,8 +398,11 @@ for valeur1 in tab_T:
                 plt.scatter(i + 1, R0[i + 1][k_d_new_i_k(i, k)], s=20, marker='o', color='RED')
                 plt.title("Mouvement sur la lattice de R0")
                 plt.xlabel("temps")
+                nomplotlattice = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+                    N) + ", sigma_r=" + str(sigma_r)
                 plt.show()
-                return 0
+                plt.savefig(nomplotlattice)
+                return nomplotlattice
 
 
             def plot_lattice_movement_u0(i, j, k):
@@ -388,9 +414,11 @@ for valeur1 in tab_T:
                 plt.scatter(i + 1, U0[i + 1][j_d_new_i_j_k(i, j, k)], s=20, marker='o', color='RED')
                 plt.title("Mouvement sur la lattice de U0")
                 plt.xlabel("temps")
+                nomplotlatticeu0 = "Mouvement u0 sur la lattice de R: T=" + str(T) + ", N =" + str(
+                    N) + ", sigma_r=" + str(sigma_r)
                 plt.show()
-                return 0
-
+                plt.savefig(nomplotlatticeu0)
+                return nomplotlatticeu0
 
             # bivariate tree
             def initialize_tree_new():
@@ -459,7 +487,8 @@ for valeur1 in tab_T:
                 return 0
             """
 
-
+            nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
+                N) + ", sigma_r=" + str(sigma_r)
             def plot_ku_kd():
                 for i in range(0, N):
                     for k in range(0, i + 1):
@@ -468,7 +497,11 @@ for valeur1 in tab_T:
                         plt.subplot(1, 2, 2)
                         plt.scatter(i, k_d_i_k(i, k), s=1, color='RED', label='k_d')
                 plt.show()
-                return 0
+                plt.savefig(nom)
+                return nom
+
+
+            cv2.imwrite(nom, plot_ku_kd())
 
 
             # Plot of a simulation for the action
@@ -503,6 +536,8 @@ for valeur1 in tab_T:
                 return data
 
 
+            nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
+                N) + ", sigma_r=" + str(sigma_r)
             def new_plot_simulation():
                 data = simulation()
                 for i in range(0, len(data)):
@@ -511,7 +546,11 @@ for valeur1 in tab_T:
                 plt.xlabel("temps")
                 plt.ylabel("Valeur de l'action")
                 plt.show()
-                return 0
+                plt.savefig(nom)
+                return nom
+
+
+            cv2.imwrite(nom, new_plot_simulation())
 
 
             # v_new = update_v_new(v_new)
@@ -529,7 +568,8 @@ for valeur1 in tab_T:
                 # plt.show()
                 # new_plot_simulation()
                 # plt.show()
-                plot_lattice_movement_r(10, 9)
-                plot_lattice_movement_y(25, 9, 15)
-                new_plot_lattice_movement_r0(25, 9)
-                plot_lattice_movement_u0(25, 9, 15)
+
+                cv2.imwrite(nomplot, plot_lattice_movement_r(10, 9))
+                cv2.imwrite(nomplotlattice_y,plot_lattice_movement_y(25, 9, 15))
+                cv2.imwrite(nomplotlattice,new_plot_lattice_movement_r0(25, 9))
+                cv2.imwrite(nomplotlatticeu0,plot_lattice_movement_u0(25, 9, 15))
