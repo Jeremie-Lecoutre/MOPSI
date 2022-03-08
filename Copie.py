@@ -5,12 +5,15 @@ import random as rd
 
 Sigma_r = [0.08, 0.5, 1, 3]
 tab_N = [50, 100, 150, 200, 300]
-tab_T =[1, 2]
+tab_T = [1, 2]
 import cv2
 import csv
-fichier = open("annuaire.csv", "wt")
-ecrivainCSV = csv.writer(fichier,delimiter=";")
-ecrivainCSV.writerow(["Paramètres","Prénom","Téléphone"])
+
+fichier = open("resultats.csv", "wt")
+ecrivainCSV = csv.writer(fichier, delimiter=";")
+ecrivainCSV.writerow(
+    ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
+     "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
 
 for valeur1 in tab_T:
     for valeur2 in Sigma_r:
@@ -140,9 +143,6 @@ for valeur1 in tab_T:
                 return nomplot
 
 
-
-
-
             def plot_lattice_movement_y(i, j, k):
                 for l in range(0, N + 1):
                     for m in range(0, l + 1):
@@ -216,7 +216,7 @@ for valeur1 in tab_T:
                 return v0
 
 
-            # v = [initialize_v()]
+            v = [initialize_v()]
 
 
             def update_v(v0):
@@ -228,14 +228,43 @@ for valeur1 in tab_T:
                             # print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
                             v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                                     q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
-                                    v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
-                                        k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)]))]
+                                    v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) *
+                                    v0[0][j_d_i_j_k(i, j, k)][
+                                        k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
+                                        k_d_i_k(i, k)]))]
                         v_i += [v_i_j]
                     v0 = [v_i] + v0
                 return v0
 
 
-            # v = update_v(v)
+            v = update_v(v)
+
+
+            def initialize_v_euro():
+                v0 = []
+                for j in range(0, N + 1):
+                    v_j = []
+                    for k in range(0, N + 1):
+                        v_j += [max(K - s_i_j_k(N, j, k), 0)]
+                    v0 += [v_j]
+                return v0
+
+
+            def update_v_euro(v0):
+                for i in range(N - 1, -1, -1):
+                    v_i = []
+                    for j in range(0, i + 1):
+                        v_i_j = []
+                        for k in range(0, i + 1):
+                            v_i_j += [np.exp(-r_i_k(i, k) * h) * (
+                                    q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
+                                    v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) *
+                                    v0[0][j_d_i_j_k(i, j, k)][
+                                        k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)])]
+                        v_i += [v_i_j]
+                    v0 = [v_i] + v0
+                return v0
+
 
             # Plot of a simulation for the action
             def jump(i, j, k):
@@ -267,6 +296,7 @@ for valeur1 in tab_T:
             nom = "Simulation de l'évolution du prix de l'action avec: T=" + str(T) + ", N =" + str(
                 N) + ", sigma_r=" + str(sigma_r)
 
+
             def plot_simulation():
                 data = simulation()
                 for i in range(0, len(data)):
@@ -280,6 +310,7 @@ for valeur1 in tab_T:
 
 
             cv2.imwrite(nom, plot_simulation())
+
 
             # The robust tree algorithm
             def new_mu_r(r):
@@ -302,7 +333,6 @@ for valeur1 in tab_T:
 
 
             R0, U0 = initialize_lattice()
-
 
 
             def k_d_new_i_k(i, k):
@@ -359,31 +389,37 @@ for valeur1 in tab_T:
 
 
             def p_new_i_j_k(i, j, k):
-                return max(0, min(1, (mu_s(r_i_k(i, k), s_new[i][j]) * h + s_new[i][j] - s_new[i + 1][j_d_new_i_j_k(i, j, k)]) / (
-                        s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i + 1][j_d_new_i_j_k(i, j, k)])))
+                return max(0, min(1, (
+                            mu_s(r_i_k(i, k), s_new[i][j]) * h + s_new[i][j] - s_new[i + 1][j_d_new_i_j_k(i, j, k)]) / (
+                                          s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i + 1][j_d_new_i_j_k(i, j, k)])))
 
 
             def m_i_ju_ku(i, j, k):
-                return (s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k)) - r_i_k(i, k))
+                return (s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i][j]) * (
+                            r_i_k(i + 1, k_u_new_i_k(i, k)) - r_i_k(i, k))
 
 
             def m_i_jd_ku(i, j, k):
-                return (s_new[i + 1][j_d_new_i_j_k(i, j, k)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k)) - r_i_k(i, k))
+                return (s_new[i + 1][j_d_new_i_j_k(i, j, k)] - s_new[i][j]) * (
+                            r_i_k(i + 1, k_u_new_i_k(i, k)) - r_i_k(i, k))
 
 
             def m_i_ju_kd(i, j, k):
-                return (s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k)) - r_i_k(i, k))
+                return (s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i][j]) * (
+                            r_i_k(i + 1, k_d_new_i_k(i, k)) - r_i_k(i, k))
 
 
             def m_i_jd_kd(i, j, k):
-                return (s_new[i + 1][j_d_new_i_j_k(i, j, k)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k)) - r_i_k(i, k))
+                return (s_new[i + 1][j_d_new_i_j_k(i, j, k)] - s_new[i][j]) * (
+                            r_i_k(i + 1, k_d_new_i_k(i, k)) - r_i_k(i, k))
 
 
             def transition_probabilities(i, j, k):
                 a = np.array([[1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 1, 1],
                               [m_i_ju_ku(i, j, k), m_i_ju_kd(i, j, k), m_i_jd_ku(i, j, k), m_i_jd_kd(i, j, k)]])
                 b = np.array(
-                    [p_new_i_j_k(i, j, k), p_new_i_k(i, k), 1, rho * sigma_r * pow(r_i_k(i, k), 0.5) * sigma_s * s_new[i][j] * h])
+                    [p_new_i_j_k(i, j, k), p_new_i_k(i, k), 1,
+                     rho * sigma_r * pow(r_i_k(i, k), 0.5) * sigma_s * s_new[i][j] * h])
                 return alg.solve(a, b)
 
 
@@ -420,6 +456,7 @@ for valeur1 in tab_T:
                 plt.savefig(nomplotlatticeu0)
                 return nomplotlatticeu0
 
+
             # bivariate tree
             def initialize_tree_new():
                 s_new0 = []
@@ -454,7 +491,6 @@ for valeur1 in tab_T:
 
             # v_new = [initialize_v_new()]
 
-
             def update_v_new(v0):
                 for i in range(N - 1, -1, -1):
                     v_i = []
@@ -477,6 +513,37 @@ for valeur1 in tab_T:
                 return v0
 
 
+            def initialize_v_new_euro():
+                v0 = []
+                for j in range(0, N + 1):
+                    v_j = []
+                    for k in range(0, N + 1):
+                        v_j += [max(K - s_new[N][j], 0)]
+                    v0 += [v_j]
+                return v0
+
+
+            def update_v_new_euro(v0):
+                for i in range(N - 1, -1, -1):
+                    v_i = []
+                    for j in range(0, i + 1):
+                        v_i_j = []
+                        for k in range(0, i + 1):
+                            probability = transition_probabilities(i, j, k)
+                            q_i_ju_ku0 = probability[0]
+                            q_i_ju_kd0 = probability[1]
+                            q_i_jd_ku0 = probability[2]
+                            q_i_jd_kd0 = probability[3]
+                            v_i_j += [np.exp(-r_i_k(i, k) * h) * (
+                                    q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
+                                    v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
+                                    v0[0][j_d_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_jd_kd0 *
+                                    v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)])]
+                        v_i += [v_i_j]
+                    v0 = [v_i] + v0
+                return v0
+
+
             """
             def plot_tree():
                 for i in range(0, N + 1):
@@ -489,6 +556,8 @@ for valeur1 in tab_T:
 
             nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
                 N) + ", sigma_r=" + str(sigma_r)
+
+
             def plot_ku_kd():
                 for i in range(0, N):
                     for k in range(0, i + 1):
@@ -538,6 +607,8 @@ for valeur1 in tab_T:
 
             nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
                 N) + ", sigma_r=" + str(sigma_r)
+
+
             def new_plot_simulation():
                 data = simulation()
                 for i in range(0, len(data)):
@@ -553,23 +624,74 @@ for valeur1 in tab_T:
             cv2.imwrite(nom, new_plot_simulation())
 
 
-            # v_new = update_v_new(v_new)
+            def Monte_carlo_approach(simulation_number):
+                r_i = r_0 * np.ones(simulation_number)
+                S_i = S_0 * np.ones(simulation_number)
+                theta_tab = theta * np.ones(simulation_number)
+                for i in range(1, N + 1):
+                    gaussian_vector1 = np.random.multivariate_normal(np.zeros(simulation_number),
+                                                                     np.eye(simulation_number))
+                    gaussian_vector2 = np.random.multivariate_normal(np.zeros(simulation_number),
+                                                                     np.eye(simulation_number))
+                    r_i_plus_1 = r_i + kappa * (theta_tab - r_i) * T / N + sigma_r * pow(r_i * T / N,
+                                                                                         0.5) * gaussian_vector1
+                    S_i_plus_1 = S_i * np.exp(
+                        (r_i - 0.5 * (sigma_s ** 2) * np.ones(simulation_number)) * T / N + sigma_s * pow(T / N,
+                                                                                                          0.5) * (
+                                rho * gaussian_vector1 + pow(1 - rho ** 2, 0.5) * gaussian_vector2))
+                    r_i = r_i_plus_1
+                    S_i = S_i_plus_1
+                for i in range(simulation_number):
+                    S_i[i] = max(0, K - S_i[i]) / simulation_number
+                    r_i[i] = r_i[i] / simulation_number
+                return r_i.sum(), S_i.sum()
 
 
-            if __name__ == '__main__':
-                # print(len(v))
-                # print(v[0][0][0])
-                # print(v_new[0][0][0])
-                # for i in range(0, N + 1):
-                #   for j in range(0, i + 1):
-                #      for k in range(0, i + 1):
-                #         print(v[i][j][k])
-                #        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
-                # plt.show()
-                # new_plot_simulation()
-                # plt.show()
+            def jump_MC(i, j, k):
+                p = rd.random()
+                q_sum = q_i_jd_kd(i, j, k)
+                if p < q_sum:
+                    return r_i_k(i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
+                                                                k_d_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)
+                if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
+                    return r_i_k(i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
+                                                                k_u_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)
+                q_sum += q_i_jd_ku(i, j, k)
+                if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
+                    return r_i_k(i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
+                                                                k_d_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)
+                q_sum += q_i_ju_kd(i, j, k)
+                if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
+                    return r_i_k(i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
+                                                                k_u_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)
 
-                cv2.imwrite(nomplot, plot_lattice_movement_r(10, 9))
-                cv2.imwrite(nomplotlattice_y,plot_lattice_movement_y(25, 9, 15))
-                cv2.imwrite(nomplotlattice,new_plot_lattice_movement_r0(25, 9))
-                cv2.imwrite(nomplotlatticeu0,plot_lattice_movement_u0(25, 9, 15))
+
+            def simulation():
+                S = S_0
+                r = r_0
+                i = 0
+                j = 0
+                k = 0
+                while i < N:
+                    r, s, i, j, k = jump_MC(i, j, k)
+                return r, s
+
+
+            def MC_tree(nb_simul):
+                tab_r = []
+                tab_s = []
+                for i in range(nb_simul):
+                    r, s = simulation()
+                    tab_r.append(r)
+                    tab_s.append(max(0, K - s))
+                return np.array(tab_r).sum() / nb_simul, np.array(tab_s).sum() / nb_simul
+
+
+            r_MC, s_MC = Monte_carlo_approach(1000)
+            r_MC_tree, s_MC_tree = MC_tree(1000)
+            ecrivainCSV.writerow(
+                ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
+                 str(update_v_euro([initialize_v_euro()])[0][0][0]), str(update_v_new([initialize_v_new()])[0][0][0]),
+                 str(update_v_new_euro([initialize_v_new_euro()])[0][0][0]), str(s_MC), str(s_MC_tree)])
+
+fichier.close()
