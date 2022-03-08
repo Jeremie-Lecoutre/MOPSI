@@ -3,6 +3,9 @@ import numpy.linalg as alg
 import matplotlib.pyplot as plt
 import random as rd
 
+Sigma_r = [0.08, 0.5, 1, 3]
+tab_N = [50, 100, 150, 200, 300]
+tab_T =[1, 2]
 # Constants of our problem
 sigma_s = 0.25  # constant stock price volatility
 sigma_r = 0.5  # positive constant
