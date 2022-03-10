@@ -191,9 +191,6 @@ def initialize_v(R,Y,N):
     return v0
 
 
-
-
-
 def update_v(v0,R, Y,sigma_r,h,N):
     for i in range(N - 1, -1, -1):
         v_i = []
