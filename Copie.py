@@ -73,7 +73,7 @@ def k_d_i_k(R, i, k, sigma_r, h):
 
 
 def k_u_i_k(R, i, k, sigma_r, h):
-    return k_d_i_k(R, i, k, h) + 1
+    return k_d_i_k(R, i, k, sigma_r, h) + 1
 
 
 def p_i_k(R, i, k, sigma_r, h):
