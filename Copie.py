@@ -152,19 +152,19 @@ def initialize_tree(R, Y, N):
 
 
 # Probability
-def q_i_ju_ku(R,Y,i, j, k, sigma_r,h):
+def q_i_ju_ku(R,Y, sigma_r,h,i, j, k):
     return p_i_k(R, i, k, sigma_r, h) * p_i_j_k(R,Y,i, j, k, sigma_r,h)
 
 
-def q_i_ju_kd(R,Y,i, j, k, sigma_r,h):
+def q_i_ju_kd(R,Y, sigma_r,h,i, j, k):
     return (1 - p_i_k(R, i, k, sigma_r, h)) * p_i_j_k(R,Y,i, j, k, sigma_r,h)
 
 
-def q_i_jd_ku(R,Y,i, j, k, sigma_r,h):
+def q_i_jd_ku(R,Y, sigma_r,h,i, j, k):
     return p_i_k(R, i, k, sigma_r, h) * (1 - p_i_j_k(R,Y,i, j, k, sigma_r,h))
 
 
-def q_i_jd_kd(R,Y,i, j, k, sigma_r,h):
+def q_i_jd_kd(R,Y, sigma_r,h,i, j, k):
     return (1 - p_i_k(R, i, k, sigma_r, h)) * (1 - p_i_j_k(R,Y,i, j, k, sigma_r,h))
 
 
@@ -199,10 +199,10 @@ def update_v(v0,R, Y,sigma_r,h,N):
             for k in range(0, i + 1):
                 # print(j_u_i_j_k(i, j, k), k_u_i_k(i, k))
                 v_i_j += [max(max((K - s_i_j_k(R,Y,i, j, k)), 0), np.exp(-r_i_k(R, sigma_r,i, k) * h) * (
-                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_u_i_k(R, i, k, sigma_r, h)] + q_i_ju_kd(i, j, k) *
-                        v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)] + q_i_jd_ku(i, j, k) *
+                        q_i_ju_ku(R,Y, sigma_r,h,i, j, k) * v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_u_i_k(R, i, k, sigma_r, h)] + q_i_ju_kd(R,Y, sigma_r,h,i, j, k) *
+                        v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)] + q_i_jd_ku(R,Y, sigma_r,h,i, j, k) *
                         v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][
-                            k_u_i_k(R, i, k, sigma_r, h)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][
+                            k_u_i_k(R, i, k, sigma_r, h)] + q_i_jd_kd(R,Y, sigma_r,h,i, j, k) * v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][
                             k_d_i_k(R, i, k, sigma_r, h)]))]
             v_i += [v_i_j]
         v0 = [v_i] + v0
@@ -226,10 +226,10 @@ def update_v_euro(v0,R, Y, i, j, k, sigma_r,h,N):
             v_i_j = []
             for k in range(0, i + 1):
                 v_i_j += [np.exp(-r_i_k(R, sigma_r,i, k) * h) * (
-                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_u_i_k(R, i, k, sigma_r, h)] + q_i_ju_kd(i, j, k) *
-                        v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)] + q_i_jd_ku(i, j, k) *
+                        q_i_ju_ku(R,Y, sigma_r,h,i, j, k) * v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_u_i_k(R, i, k, sigma_r, h)] + q_i_ju_kd(R,Y, sigma_r,h,i, j, k) *
+                        v0[0][j_u_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)] + q_i_jd_ku(R,Y, sigma_r,h,i, j, k) *
                         v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][
-                            k_u_i_k(R, i, k, sigma_r, h)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)])]
+                            k_u_i_k(R, i, k, sigma_r, h)] + q_i_jd_kd(R,Y, sigma_r,h,i, j, k) * v0[0][j_d_i_j_k(R, Y, i, j, k, sigma_r,h)][k_d_i_k(R, i, k, sigma_r, h)])]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -238,16 +238,16 @@ def update_v_euro(v0,R, Y, i, j, k, sigma_r,h,N):
 # Plot of a simulation for the action
 def jump(R, Y, i, j, k, sigma_r,h):
     p = rd.random()
-    q_sum = q_i_jd_kd(i, j, k)
+    q_sum = q_i_jd_kd(R,Y, sigma_r,h,i, j, k)
     if p < q_sum:
         return s_i_j_k(R,Y,i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)
-    if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
+    if q_sum < p < q_sum + q_i_jd_ku(R,Y, sigma_r,h,i, j, k):
         return s_i_j_k(R,Y,i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)
-    q_sum += q_i_jd_ku(i, j, k)
-    if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
+    q_sum += q_i_jd_ku(R,Y, sigma_r,h,i, j, k)
+    if q_sum < p < q_sum + q_i_ju_kd(R,Y, sigma_r,h,i, j, k):
         return s_i_j_k(R,Y,i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)
-    q_sum += q_i_ju_kd(i, j, k)
-    if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
+    q_sum += q_i_ju_kd(R,Y, sigma_r,h,i, j, k)
+    if q_sum < p < q_sum + q_i_ju_ku(R,Y, sigma_r,h,i, j, k):
         return s_i_j_k(R,Y,i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)
 
 
@@ -607,19 +607,19 @@ def Monte_carlo_approach(simulation_number,N,T,sigma_r):
 
 def jump_MC(i, j, k,N,T,sigma_r,R,h):
     p = rd.random()
-    q_sum = q_i_jd_kd(i, j, k)
+    q_sum = q_i_jd_kd(R,Y, sigma_r,h,i, j, k)
     if p < q_sum:
         return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(i, j, k),
                                                     k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
-    if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
+    if q_sum < p < q_sum + q_i_jd_ku(R,Y, sigma_r,h,i, j, k):
         return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(i, j, k),
                                                     k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
-    q_sum += q_i_jd_ku(i, j, k)
-    if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
+    q_sum += q_i_jd_ku(R,Y, sigma_r,h,i, j, k)
+    if q_sum < p < q_sum + q_i_ju_kd(R,Y, sigma_r,h,i, j, k):
         return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_u_i_j_k(i, j, k),
                                                     k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
-    q_sum += q_i_ju_kd(i, j, k)
-    if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
+    q_sum += q_i_ju_kd(R,Y, sigma_r,h,i, j, k)
+    if q_sum < p < q_sum + q_i_ju_ku(R,Y, sigma_r,h,i, j, k):
         return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
                                                     k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
 
