@@ -148,7 +148,7 @@ def initialize_tree(R, Y, N):
     return tree
 
 
-Tree = initialize_tree()
+
 
 
 # Probability
@@ -647,40 +647,42 @@ def MC_tree(nb_simul,N,T,sigma_r,R,h):
         tab_s.append(max(0, K - s))
     return np.array(tab_r).sum() / nb_simul, np.array(tab_s).sum() / nb_simul
 
-with open('resultats.csv', 'w') as ecrivainCSV:
-    ecrivainCSV = csv.writer(fichier, delimiter=";")
-    ecrivainCSV.writerow(
-        ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
-         "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
-    for valeur1 in tab_T:
-        for valeur2 in Sigma_r:
-            for valeur3 in tab_N:
+fichier = open('resultats.csv', 'w')
+ecrivainCSV = csv.writer(fichier, delimiter=";")
+ecrivainCSV.writerow(
+    ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
+     "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
+for valeur1 in tab_T:
+    for valeur2 in Sigma_r:
+        for valeur3 in tab_N:
 
-                # The Wei and Hilliard-Schwartz-Tucker procedures
-                h = T / N
-                X_0 = np.log(S_0) / sigma_s
-                R_0 = 2 * pow(r_0, 0.5) / sigma_r
-                Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
-                U_0 = np.log(S_0) / sigma_s
-                T = valeur1  # time to maturity
-                N = valeur3  # Number of intervals
-                sigma_r = valeur2  # positive constant
+            # The Wei and Hilliard-Schwartz-Tucker procedures
+            h = T / N
+            X_0 = np.log(S_0) / sigma_s
+            R_0 = 2 * pow(r_0, 0.5) / sigma_r
+            Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
+            U_0 = np.log(S_0) / sigma_s
+            T = valeur1  # time to maturity
+            N = valeur3  # Number of intervals
+            sigma_r = valeur2  # positive constant
 
-                R, Y, = init_r_y(N)
-                v = [initialize_v(R, Y, N, i, j, k)]
-                v = update_v(v, R, Y, i, j, k, sigma_r, h, N)
-                cv2.imwrite(plot_simulation(N, T, R, Y, sigma_r, h), plot_simulation(N, T, R, Y, sigma_r, h))
 
-                R0, U0 = initialize_lattice(N, h, R, sigma_r)
-                s_new, tree_new = initialize_tree_new(N,U0,R0)
+            R, Y, = init_r_y(N)
+            Tree = initialize_tree(R, Y, N)
+            v = [initialize_v(R, Y, N, i, j, k)]
+            v = update_v(v, R, Y, i, j, k, sigma_r, h, N)
+            cv2.imwrite(plot_simulation(N, T, R, Y, sigma_r, h), plot_simulation(N, T, R, Y, sigma_r, h))
 
-                r_MC, s_MC = Monte_carlo_approach(1000,N,T,sigma_r)
-                r_MC_tree, s_MC_tree = MC_tree(1000,N,T,sigma_r,R,h)
-                ecrivainCSV.writerow(
-                    ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
-                     str(update_v_euro([initialize_v_euro()])[0][0][0]), str(update_v_new([initialize_v_new(N, s_new)],N,s_new,h,R0,R, sigma_r)[0][0][0]),
-                     str(update_v_new_euro([initialize_v_new_euro(N,s_new)],s_new,h,R0,R, sigma_r)[0][0][0]), str(s_MC), str(s_MC_tree)])
-                cv2.imwrite(plot_ku_kd(R,N,T, sigma_r, h), plot_ku_kd(R,N,T, sigma_r, h))
-                cv2.imwrite(new_plot_simulation(s_new, h, R0, R, sigma_r), new_plot_simulation(s_new, h, R0, R, sigma_r))
+            R0, U0 = initialize_lattice(N, h, R, sigma_r)
+            s_new, tree_new = initialize_tree_new(N,U0,R0)
+
+            r_MC, s_MC = Monte_carlo_approach(1000,N,T,sigma_r)
+            r_MC_tree, s_MC_tree = MC_tree(1000,N,T,sigma_r,R,h)
+            ecrivainCSV.writerow(
+                ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
+                 str(update_v_euro([initialize_v_euro()])[0][0][0]), str(update_v_new([initialize_v_new(N, s_new)],N,s_new,h,R0,R, sigma_r)[0][0][0]),
+                 str(update_v_new_euro([initialize_v_new_euro(N,s_new)],s_new,h,R0,R, sigma_r)[0][0][0]), str(s_MC), str(s_MC_tree)])
+            cv2.imwrite(plot_ku_kd(R,N,T, sigma_r, h), plot_ku_kd(R,N,T, sigma_r, h))
+            cv2.imwrite(new_plot_simulation(s_new, h, R0, R, sigma_r), new_plot_simulation(s_new, h, R0, R, sigma_r))
 
 fichier.close()
