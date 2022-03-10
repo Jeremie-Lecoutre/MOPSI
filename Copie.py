@@ -13,14 +13,6 @@ Sigma_r = [0.08]
 tab_N = [50]
 tab_T = [1]
 
-
-fichier = open("resultats.csv", "wt")
-ecrivainCSV = csv.writer(fichier, delimiter=";")
-ecrivainCSV.writerow(
-    ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
-     "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
-
-
 # Constants of our problem
 sigma_s = 0.25  # constant stock price volatility
 kappa = 0.5  # reversion speed
@@ -527,27 +519,26 @@ def plot_tree():
     return 0
 """
 
-nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
-    N) + ", sigma_r=" + str(sigma_r)
 
-
-def plot_ku_kd():
+def plot_ku_kd(R,N,T, sigma_r, h):
     for i in range(0, N):
         for k in range(0, i + 1):
             plt.subplot(1, 2, 1)
-            plt.scatter(i, k_u_i_k(i, k), s=1, color='BLUE', label='k_u')
+            plt.scatter(i, k_u_i_k(R, i, k, sigma_r, h), s=1, color='BLUE', label='k_u')
             plt.subplot(1, 2, 2)
-            plt.scatter(i, k_d_i_k(i, k), s=1, color='RED', label='k_d')
+            plt.scatter(i, k_d_i_k(R, i, k, sigma_r, h), s=1, color='RED', label='k_d')
     plt.show()
+    nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
     plt.savefig(nom)
     return nom
 
 
-cv2.imwrite(nom, plot_ku_kd())
+
 
 
 # Plot of a simulation for the action
-def new_jump(i, j, k):
+def new_jump(i, j, k,s_new,h,R0,R, sigma_r):
     p = rd.random()
     probability = transition_probabilities(i, j, k, s_new,h,R0,R, sigma_r)
     q_i_ju_ku0 = probability[0]
@@ -567,37 +558,34 @@ def new_jump(i, j, k):
         return s_new[i + 1][j_d_new_i_j_k(i, j, k, s_new,R0,h)], i + 1, j_d_new_i_j_k(i, j, k, s_new,R0,h), k_d_new_i_k(R0,h, i, k)
 
 
-def new_simulation():
+def new_simulation(s_new,h,R0,R, sigma_r):
     data = [S_0]
     i = 0
     j = 0
     k = 0
     while i < N:
-        s, i, j, k = new_jump(i, j, k)
+        s, i, j, k = new_jump(i, j, k,s_new,h,R0,R, sigma_r)
         data += [s]
     return data
 
 
-nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
-    N) + ", sigma_r=" + str(sigma_r)
 
 
-def new_plot_simulation():
-    data = simulation()
+
+def new_plot_simulation(s_new,h,R0,R, sigma_r):
+    data = new_simulation(s_new,h,R0,R, sigma_r)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
     plt.title("Simulation de l'évolution du prix de l'action")
     plt.xlabel("temps")
     plt.ylabel("Valeur de l'action")
     plt.show()
+    nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
     plt.savefig(nom)
     return nom
 
-
-cv2.imwrite(nom, new_plot_simulation())
-
-
-def Monte_carlo_approach(simulation_number):
+def Monte_carlo_approach(simulation_number,N,T,sigma_r):
     r_i = r_0 * np.ones(simulation_number)
     S_i = S_0 * np.ones(simulation_number)
     theta_tab = theta * np.ones(simulation_number)
@@ -620,45 +608,50 @@ def Monte_carlo_approach(simulation_number):
     return r_i.sum(), S_i.sum()
 
 
-def jump_MC(i, j, k):
+def jump_MC(i, j, k,N,T,sigma_r,R,h):
     p = rd.random()
     q_sum = q_i_jd_kd(i, j, k)
     if p < q_sum:
-        return r_i_k(R, sigma_r,i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
-                                                    k_d_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)
+        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
+                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
     if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
-                                                    k_u_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)
+        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k),
+                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
     q_sum += q_i_jd_ku(i, j, k)
     if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
-                                                    k_d_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)
+        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
+                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
     q_sum += q_i_ju_kd(i, j, k)
     if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
-                                                    k_u_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)
+        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
+                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
 
 
-def simulation():
+def simulation(N,T,sigma_r,R,h):
     S = S_0
     r = r_0
     i = 0
     j = 0
     k = 0
     while i < N:
-        r, s, i, j, k = jump_MC(i, j, k)
+        r, s, i, j, k = jump_MC(i, j, k,N,T,sigma_r,R,h)
     return r, s
 
 
-def MC_tree(nb_simul):
+def MC_tree(nb_simul,N,T,sigma_r,R,h):
     tab_r = []
     tab_s = []
     for i in range(nb_simul):
-        r, s = simulation()
+        r, s = simulation(N,T,sigma_r,R,h)
         tab_r.append(r)
         tab_s.append(max(0, K - s))
     return np.array(tab_r).sum() / nb_simul, np.array(tab_s).sum() / nb_simul
 
+fichier = open("resultats.csv", "wt")
+ecrivainCSV = csv.writer(fichier, delimiter=";")
+ecrivainCSV.writerow(
+    ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
+     "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
 for valeur1 in tab_T:
     for valeur2 in Sigma_r:
         for valeur3 in tab_N:
@@ -681,11 +674,13 @@ for valeur1 in tab_T:
             R0, U0 = initialize_lattice(N, h, R, sigma_r)
             s_new, tree_new = initialize_tree_new(N,U0,R0)
 
-            r_MC, s_MC = Monte_carlo_approach(1000)
-            r_MC_tree, s_MC_tree = MC_tree(1000)
+            r_MC, s_MC = Monte_carlo_approach(1000,N,T,sigma_r)
+            r_MC_tree, s_MC_tree = MC_tree(1000,N,T,sigma_r,R,h)
             ecrivainCSV.writerow(
                 ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
                  str(update_v_euro([initialize_v_euro()])[0][0][0]), str(update_v_new([initialize_v_new(N, s_new)],N,s_new,h,R0,R, sigma_r)[0][0][0]),
                  str(update_v_new_euro([initialize_v_new_euro(N,s_new)],s_new,h,R0,R, sigma_r)[0][0][0]), str(s_MC), str(s_MC_tree)])
+            cv2.imwrite(plot_ku_kd(R,N,T, sigma_r, h), plot_ku_kd(R,N,T, sigma_r, h))
+            cv2.imwrite(new_plot_simulation(s_new, h, R0, R, sigma_r), new_plot_simulation(s_new, h, R0, R, sigma_r))
 
 fichier.close()
