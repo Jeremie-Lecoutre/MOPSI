@@ -657,7 +657,7 @@ for valeur1 in tab_T:
         for valeur3 in tab_N:
 
             # The Wei and Hilliard-Schwartz-Tucker procedures
-            h = T / N
+
             X_0 = np.log(S_0) / sigma_s
             R_0 = 2 * pow(r_0, 0.5) / sigma_r
             Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
@@ -665,6 +665,7 @@ for valeur1 in tab_T:
             T = valeur1  # time to maturity
             N = valeur3  # Number of intervals
             sigma_r = valeur2  # positive constant
+            h = T / N
 
 
             R, Y, = init_r_y(N)
