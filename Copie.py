@@ -620,7 +620,7 @@ def jump_MC(i, j, k,N,T,sigma_r,R,h):
                                                     k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)
     q_sum += q_i_ju_kd(R,Y, sigma_r,h,i, j, k)
     if q_sum < p < q_sum + q_i_ju_ku(R,Y, sigma_r,h,i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h),
+        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h),
                                                     k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)
 
 
