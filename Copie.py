@@ -219,7 +219,7 @@ def initialize_v_euro(N):
     return v0
 
 
-def update_v_euro(v0,R, Y, i, j, k, sigma_r,h,N):
+def update_v_euro(v0,R, Y,sigma_r,h,N):
     for i in range(N - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
@@ -678,7 +678,7 @@ for valeur1 in tab_T:
             r_MC_tree, s_MC_tree = MC_tree(1000,N,T,sigma_r,R,h)
             ecrivainCSV.writerow(
                 ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
-                 str(update_v_euro([initialize_v_euro(N)])[0][0][0],R, Y, i, j, k, sigma_r,h,N), str(update_v_new([initialize_v_new(N, s_new)],N,s_new,h,R0,R, sigma_r)[0][0][0]),
+                 str(update_v_euro([initialize_v_euro(N)])[0][0][0],R, Y,sigma_r,h,N), str(update_v_new([initialize_v_new(N, s_new)],N,s_new,h,R0,R, sigma_r)[0][0][0]),
                  str(update_v_new_euro([initialize_v_new_euro(N,s_new),s_new,h,R0,R, sigma_r],s_new,h,R0,R, sigma_r)[0][0][0]), str(s_MC), str(s_MC_tree)])
             cv2.imwrite(plot_ku_kd(R,N,T, sigma_r, h), plot_ku_kd(R,N,T, sigma_r, h))
             cv2.imwrite(new_plot_simulation(s_new, h, R0, R, sigma_r), new_plot_simulation(s_new, h, R0, R, sigma_r))
