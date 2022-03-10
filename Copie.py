@@ -306,10 +306,9 @@ def initialize_lattice(N,h,R, sigma_r):
     return r0, u0
 
 
-R0, U0 = initialize_lattice()
 
 
-def k_d_new_i_k(i, k):
+def k_d_new_i_k(R0,h, i, k):
     k_d = -1
     for k_star in range(0, k + 1):
         if R0[i][k] + new_mu_r(R0[i][k]) * h >= R0[i + 1][k_star]:
@@ -321,7 +320,7 @@ def k_d_new_i_k(i, k):
         return k_d
 
 
-def k_u_new_i_k(i, k):
+def k_u_new_i_k(R0,h, i, k):
     k_d = -1
     for k_star in range(k + 1, i + 2):
         if R0[i][k] + new_mu_r(R0[i][k]) * h <= R0[i + 1][k_star]:
@@ -358,8 +357,8 @@ def j_u_new_i_j_k(i, j, k):
 
 
 def p_new_i_k(i, k):
-    return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(i, k)]) / (
-            R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(i, k)])))
+    return max(0, min(1, (new_mu_r(R0[i][k]) * h + R0[i][k] - R0[i + 1][k_d_new_i_k(R0,h, i, k)]) / (
+            R0[i + 1][k_u_new_i_k(i, k)] - R0[i + 1][k_d_new_i_k(R0,h, i, k)])))
 
 
 def p_new_i_j_k(i, j, k):
@@ -380,12 +379,12 @@ def m_i_jd_ku(i, j, k):
 
 def m_i_ju_kd(i, j, k):
     return (s_new[i + 1][j_u_new_i_j_k(i, j, k)] - s_new[i][j]) * (
-                r_i_k(R, sigma_r,i + 1, k_d_new_i_k(i, k)) - r_i_k(R, sigma_r,i, k))
+                r_i_k(R, sigma_r,i + 1, k_d_new_i_k(R0,h, i, k)) - r_i_k(R, sigma_r,i, k))
 
 
 def m_i_jd_kd(i, j, k):
     return (s_new[i + 1][j_d_new_i_j_k(i, j, k)] - s_new[i][j]) * (
-                r_i_k(R, sigma_r,i + 1, k_d_new_i_k(i, k)) - r_i_k(R, sigma_r,i, k))
+                r_i_k(R, sigma_r,i + 1, k_d_new_i_k(R0,h, i, k)) - r_i_k(R, sigma_r,i, k))
 
 
 def transition_probabilities(i, j, k):
@@ -405,7 +404,7 @@ def new_plot_lattice_movement_r0(i, k):
             plt.scatter(l, R0[l][m], s=1, color='BLACK')
     plt.scatter(i + 1, R0[i + 1][k_u_new_i_k(i, k)], s=20, marker='o', color='BLUE')
     plt.scatter(i, R0[i][k], s=20, marker='^', color='GREEN')
-    plt.scatter(i + 1, R0[i + 1][k_d_new_i_k(i, k)], s=20, marker='o', color='RED')
+    plt.scatter(i + 1, R0[i + 1][k_d_new_i_k(R0,h, i, k)], s=20, marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R0")
     plt.xlabel("temps")
     nomplotlattice = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
@@ -479,9 +478,9 @@ def update_v_new(v0):
                 # print(j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k))
                 v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(R, sigma_r,i, k) * h) * (
                         q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
-                        v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
+                        v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(R0,h, i, k)] + q_i_jd_ku0 *
                         v0[0][j_d_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_jd_kd0 *
-                        v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)]))]
+                        v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(R0,h, i, k)]))]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -510,9 +509,9 @@ def update_v_new_euro(v0):
                 q_i_jd_kd0 = probability[3]
                 v_i_j += [np.exp(-r_i_k(R, sigma_r,i, k) * h) * (
                         q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_ju_kd0 *
-                        v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)] + q_i_jd_ku0 *
+                        v0[0][j_u_new_i_j_k(i, j, k)][k_d_new_i_k(R0,h, i, k)] + q_i_jd_ku0 *
                         v0[0][j_d_new_i_j_k(i, j, k)][k_u_new_i_k(i, k)] + q_i_jd_kd0 *
-                        v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(i, k)])]
+                        v0[0][j_d_new_i_j_k(i, j, k)][k_d_new_i_k(R0,h, i, k)])]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -559,13 +558,13 @@ def new_jump(i, j, k):
     if p < q_sum:
         return s_new[i + 1][j_u_new_i_j_k(i, j, k)], i + 1, j_u_new_i_j_k(i, j, k), k_u_new_i_k(i, k)
     if q_sum < p < q_sum + q_i_ju_kd0:
-        return s_new[i + 1][j_u_new_i_j_k(i, j, k)], i + 1, j_u_new_i_j_k(i, j, k), k_d_new_i_k(i, k)
+        return s_new[i + 1][j_u_new_i_j_k(i, j, k)], i + 1, j_u_new_i_j_k(i, j, k), k_d_new_i_k(R0,h, i, k)
     q_sum += q_i_ju_kd0
     if q_sum < p < q_sum + q_i_jd_ku0:
         return s_new[i + 1][j_d_new_i_j_k(i, j, k)], i + 1, j_d_new_i_j_k(i, j, k), k_u_new_i_k(i, k)
     q_sum += q_i_jd_ku0
     if q_sum < p < q_sum + q_i_jd_kd0:
-        return s_new[i + 1][j_d_new_i_j_k(i, j, k)], i + 1, j_d_new_i_j_k(i, j, k), k_d_new_i_k(i, k)
+        return s_new[i + 1][j_d_new_i_j_k(i, j, k)], i + 1, j_d_new_i_j_k(i, j, k), k_d_new_i_k(R0,h, i, k)
 
 
 def new_simulation():
@@ -678,6 +677,8 @@ for valeur1 in tab_T:
             v = [initialize_v(R, Y, N, i, j, k)]
             v = update_v(v, R, Y, i, j, k, sigma_r, h, N)
             cv2.imwrite(plot_simulation(N, T, R, Y, sigma_r, h), plot_simulation(N, T, R, Y, sigma_r, h))
+
+            R0, U0 = initialize_lattice(N, h, R, sigma_r)
 
             r_MC, s_MC = Monte_carlo_approach(1000)
             r_MC_tree, s_MC_tree = MC_tree(1000)
