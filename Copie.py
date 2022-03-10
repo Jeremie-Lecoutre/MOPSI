@@ -609,19 +609,19 @@ def jump_MC(i, j, k,N,T,sigma_r,R,h):
     p = rd.random()
     q_sum = q_i_jd_kd(R,Y, sigma_r,h,i, j, k)
     if p < q_sum:
-        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(i, j, k),
-                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
+        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h),
+                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)
     if q_sum < p < q_sum + q_i_jd_ku(R,Y, sigma_r,h,i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(i, j, k),
-                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
+        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h),
+                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_d_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)
     q_sum += q_i_jd_ku(R,Y, sigma_r,h,i, j, k)
     if q_sum < p < q_sum + q_i_ju_kd(R,Y, sigma_r,h,i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_u_i_j_k(i, j, k),
-                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(R, i, k, sigma_r, h)
+        return r_i_k(R, sigma_r,i + 1, k_d_i_k(R, i, k, sigma_r, h)), s_i_j_k(R,Y,i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h),
+                                                    k_d_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_d_i_k(R, i, k, sigma_r, h)
     q_sum += q_i_ju_kd(R,Y, sigma_r,h,i, j, k)
     if q_sum < p < q_sum + q_i_ju_ku(R,Y, sigma_r,h,i, j, k):
-        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k),
-                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(R, i, k, sigma_r, h)
+        return r_i_k(R, sigma_r,i + 1, k_u_i_k(R, i, k, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h),
+                                                    k_u_i_k(R, i, k, sigma_r, h)), i + 1, j_u_i_j_k(R, Y, i, j, k, sigma_r,h), k_u_i_k(R, i, k, sigma_r, h)
 
 
 def simulation(N,T,sigma_r,R,h):
