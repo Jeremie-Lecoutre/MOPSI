@@ -194,7 +194,7 @@ def initialize_v(R,Y,N):
 
 
 
-def update_v(v0,R, Y, i, j, k, sigma_r,h,N):
+def update_v(v0,R, Y,sigma_r,h,N):
     for i in range(N - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
@@ -671,7 +671,7 @@ for valeur1 in tab_T:
             R, Y, = init_r_y(N,h)
             Tree = initialize_tree(R, Y, N)
             v = [initialize_v(R, Y, N)]
-            v = update_v(v, R, Y, i, j, k, sigma_r, h, N)
+            v = update_v(v, R, Y,  sigma_r, h, N)
             cv2.imwrite(plot_simulation(N, T, R, Y, sigma_r, h), plot_simulation(N, T, R, Y, sigma_r, h))
 
             R0, U0 = initialize_lattice(N, h, R, sigma_r)
