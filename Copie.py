@@ -181,7 +181,7 @@ def r_i_k(R, sigma_r,i, k):
 
 
 # backward dynamic programming for American put option #
-def initialize_v(R,Y,N,i, j, k):
+def initialize_v(R,Y,N):
     v0 = []
     for j in range(0, N + 1):
         v_j = []
@@ -658,19 +658,19 @@ for valeur1 in tab_T:
 
             # The Wei and Hilliard-Schwartz-Tucker procedures
 
-            X_0 = np.log(S_0) / sigma_s
-            R_0 = 2 * pow(r_0, 0.5) / sigma_r
-            Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
-            U_0 = np.log(S_0) / sigma_s
             T = valeur1  # time to maturity
             N = valeur3  # Number of intervals
             sigma_r = valeur2  # positive constant
             h = T / N
+            X_0 = np.log(S_0) / sigma_s
+            R_0 = 2 * pow(r_0, 0.5) / sigma_r
+            Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
+            U_0 = np.log(S_0) / sigma_s
 
 
-            R, Y, = init_r_y(N)
+            R, Y, = init_r_y(N,h)
             Tree = initialize_tree(R, Y, N)
-            v = [initialize_v(R, Y, N, i, j, k)]
+            v = [initialize_v(R, Y, N)]
             v = update_v(v, R, Y, i, j, k, sigma_r, h, N)
             cv2.imwrite(plot_simulation(N, T, R, Y, sigma_r, h), plot_simulation(N, T, R, Y, sigma_r, h))
 
