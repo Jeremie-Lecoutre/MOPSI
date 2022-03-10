@@ -273,7 +273,14 @@
       <option name="project" value="LOCAL" />
       <updated>1646775040304</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Truc pour Bastien">
+      <created>1646777303685</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1646777303685</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -303,6 +310,7 @@
     <MESSAGE value="Version tab de valeurs" />
     <MESSAGE value="Version1 tab de valeurs" />
     <MESSAGE value="Version2 tab de valeurs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Version2 tab de valeurs" />
+    <MESSAGE value="Truc pour Bastien" />
+    <option name="LAST_COMMIT_MESSAGE" value="Truc pour Bastien" />
   </component>
 </project>
