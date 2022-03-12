@@ -353,7 +353,7 @@ def p_new_i_j_k(i, j, k, R0, s_new, h, R, sigma_r):
 
 def m_i_ju_ku(i, j, k,R0, s_new, h, R, sigma_r):
     return (s_new[i + 1][j_u_new_i_j_k(i, j, k, R0, s_new, h)] - s_new[i][j]) * (
-                r_i_k(i + 1, k_u_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k), R, sigma_r)
+                r_i_k(i + 1, k_u_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k, R, sigma_r))
 
 
 def m_i_jd_ku(i, j, k,R0, s_new, h, R, sigma_r):
@@ -655,13 +655,13 @@ for valeur1 in tab_T:
 
             v = [initialize_v(N, Y, R)]
             v = update_v(v, Y, R, sigma_r, h, N)
-            cv2.imwrite(plot_simulation(N, Y, R, sigma_r, h), plot_simulation(N, Y, R, sigma_r, h))
+            #cv2.imwrite(plot_simulation(N, Y, R, sigma_r, h), plot_simulation(N, Y, R, sigma_r, h))
 
             R0, U0 = initialize_lattice(R, sigma_r, N)
             s_new, tree_new = initialize_tree_new(N, R0, U0)
-            cv2.imwrite(plot_ku_kd(R, sigma_r, h, T, N), plot_ku_kd(R, sigma_r, h, T, N))
-            cv2.imwrite(new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r),
-                        new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r))
+            #cv2.imwrite(plot_ku_kd(R, sigma_r, h, T, N), plot_ku_kd(R, sigma_r, h, T, N))
+            #cv2.imwrite(new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r),
+            #            new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r))
 
             r_MC, s_MC = Monte_carlo_approach(1000, r_0, S_0, N, T, sigma_r)
             r_MC_tree, s_MC_tree = MC_tree(1000, N, Y, R, sigma_r, h)
