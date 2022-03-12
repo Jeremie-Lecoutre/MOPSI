@@ -6,14 +6,17 @@ import random as rd
 import csv
 
 sigma_s = 0.25
-tab_sigma_r = [0.08, 0.5, 1, 3]
+tab_sigma_r = [0.08]
+# tab_sigma_r = [0.08, 0.5, 1, 3]
 kappa = 0.5
 S_0 = 100
 r_0 = 0.06
 theta = 0.1
 rho = -0.25
-tab_T = [1, 2]
-tab_N = [50, 100, 150, 200, 300]
+tab_T = [1]
+# tab_T = [1, 2]
+tab_N = [50]
+# tab_N = [50, 100, 150, 200, 300]
 K = 100
 
 
@@ -199,52 +202,12 @@ def update_v(v0, n, h, sigma_r, r, y):
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
-                v_i_j += [max(max((K - s_i_j_k(i, j, k, r, y)), 0), np.exp(-r_i_k(i, k, n, r) * h) * (
+                v_i_j += [max(max((K - s_i_j_k(i, j, k, r, y)), 0), np.exp(-r_i_k(i, k, sigma_r, r) * h) * (
                         q_i_ju_ku(i, j, k, h, sigma_r, r, y) * v0[0][j_u_i_j_k(i, j, k, h, sigma_r, r)][k_u_i_k(i, k, h, sigma_r, r)] + q_i_ju_kd(i, j, k, h, sigma_r, r, y) *
                         v0[0][j_u_i_j_k(i, j, k, h, sigma_r, r)][k_d_i_k(i, k, h, sigma_r, r)] + q_i_jd_ku(i, j, k, h, sigma_r, r, y) * v0[0][j_d_i_j_k(i, j, k, h, sigma_r, r)][
                             k_u_i_k(i, k, h, sigma_r, r)] + q_i_jd_kd(i, j, k, h, sigma_r, r, y) * v0[0][j_d_i_j_k(i, j, k, h, sigma_r, r)][k_d_i_k(i, k, h, sigma_r, r)]))]
             v_i += [v_i_j]
         v0 = [v_i] + v0
-    return v0
-
-
-def v_optimised(n, h, sigma_r, r, y):
-    v = np.zeros((n + 1, n + 1, n + 1))
-    for j in range(0, n + 1):
-        for k in range(0, n + 1):
-            v[n][j][k] = max(K - s_i_j_k(n, j, k, r, y), 0)
-    for i in range(n - 1, -1, -1):
-        for j in range(0, i + 1):
-            for k in range(0, i + 1):
-                j_u = j_u_i_j_k(i, j, k, h, sigma_r, r)
-                j_d = j_d_i_j_k(i, j, k, h, sigma_r, r)
-                k_u = k_u_i_k(i, k, h, sigma_r, r)
-                k_d = k_d_i_k(i, k, h, sigma_r, r)
-                v[i][j][k] = max(max((K - s_i_j_k(i, j, k, r, y)), 0), np.exp(-r_i_k(i, k, sigma_r, r) * h) * (
-                        q_i_ju_ku(i, j, k, h, sigma_r, r, y) * v[i+1][j_u][k_u] + q_i_ju_kd(i, j, k, h, sigma_r, r, y) *
-                        v[i+1][j_u][k_d] + q_i_jd_ku(i, j, k, h, sigma_r, r, y) * v[i+1][j_d][
-                            k_u] + q_i_jd_kd(i, j, k, h, sigma_r, r, y) * v[i+1][j_d][k_d]))
-    return v
-
-
-def v_optimised_2(n, h, sigma_r, r, y):
-    v0 = np.zeros((n + 1, n + 1, n + 1))
-    mat_k = K*np.ones((n + 1, n + 1))
-    mat_s = [[s_i_j_k(n, j, k, r, y) for j in range(0, n + 1)] for k in range(0, n + 1)]
-    v0[n] = (mat_k - mat_s)
-    v0[n][v0[n] < 0] = 0
-    v0[n] = v0[n].transpose()
-    for i in range(n - 1, -1, -1):
-        for j in range(0, i + 1):
-            for k in range(0, i + 1):
-                j_u = j_u_i_j_k(i, j, k, h, sigma_r, r)
-                j_d = j_d_i_j_k(i, j, k, h, sigma_r, r)
-                k_u = k_u_i_k(i, k, h, sigma_r, r)
-                k_d = k_d_i_k(i, k, h, sigma_r, r)
-                v0[i][j][k] = max(max((K - s_i_j_k(i, j, k, r, y)), 0), np.exp(-r_i_k(i, k, sigma_r, r) * h) * (
-                            q_i_ju_ku(i, j, k, h, sigma_r, r, y) * v0[i+1][j_u][k_u] + q_i_ju_kd(i, j, k, h, sigma_r, r, y) *
-                            v0[i+1][j_u][k_d] + q_i_jd_ku(i, j, k, h, sigma_r, r, y) * v0[i+1][j_d][
-                                k_u] + q_i_jd_kd(i, j, k, h, sigma_r, r, y) * v0[i+1][j_d][k_d]))
     return v0
 
 
@@ -327,7 +290,7 @@ def initialize_lattice(n, h, sigma_r, u_0, r):
     return r0, u0
 
 
-def initialize_tree_new(n, r_new, lattice_u0):
+def initialize_tree_new(n, r_new, u_new):
     s_new0 = []
     tree_new0 = []
     for i in range(0, n + 1):
@@ -335,9 +298,9 @@ def initialize_tree_new(n, r_new, lattice_u0):
         s_new_i_j = []
         for j in range(0, i + 1):
             tree_new_i_j = []
-            s_new_i_j += [np.exp(sigma_s * lattice_u0[i][j])]
+            s_new_i_j += [np.exp(sigma_s * u_new[i][j])]
             for k in range(0, i + 1):
-                tree_new_i_j += [(r_new[i][k], np.exp(sigma_s * lattice_u0[i][j]))]
+                tree_new_i_j += [(r_new[i][k], np.exp(sigma_s * u_new[i][j]))]
             tree_new_i += [tree_new_i_j]
         tree_new0 += [tree_new_i]
         s_new0 += [s_new_i_j]
@@ -368,10 +331,10 @@ def k_u_new_i_k(i, k, h, r_new):
         return k_u
 
 
-def j_d_new_i_j_k(i, j, k, h, r_new):
+def j_d_new_i_j_k(i, j, k, h, r_new, s_new):
     j_d = -1
     for j_star in range(0, j + 1):
-        if s_new[i][j] + mu_s(s_new[i][j], r_new[i][k]) * h >= s_new[i + 1][j_star]:
+        if s_new[i][j] + mu_s(r_new[i][k], s_new[i][j]) * h >= s_new[i + 1][j_star]:
             if j_star > j_d:
                 j_d = j_star
     if j_d == -1:
@@ -380,10 +343,10 @@ def j_d_new_i_j_k(i, j, k, h, r_new):
         return j_d
 
 
-def j_u_new_i_j_k(i, j, k, h, r_new):
+def j_u_new_i_j_k(i, j, k, h, r_new, s_new):
     j_u = i + 1
     for j_star in range(j + 1, i + 2):
-        if s_new[i][j] + mu_s(s_new[i][j], r_new[i][k]) * h <= s_new[i + 1][j_star]:
+        if s_new[i][j] + mu_s(r_new[i][k], s_new[i][j]) * h <= s_new[i + 1][j_star]:
             if j_star < j_u:
                 j_u = j_star
     if j_u == -1:
@@ -397,9 +360,9 @@ def p_new_i_k(i, k, h, r_new):
             r_new[i + 1][k_u_new_i_k(i, k, h, r_new)] - r_new[i + 1][k_d_new_i_k(i, k, h, r_new)])))
 
 
-def p_new_i_j_k(i, j, k, h, r_new):
-    return max(0, min(1, (mu_s(r_i_k(i, k, h, r_new), s_new[i][j]) * h + s_new[i][j] - s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)]) / (
-            s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)] - s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)])))
+def p_new_i_j_k(i, j, k, h, sigma_r, r_new, s_new):
+    return max(0, min(1, (mu_s(r_i_k(i, k, sigma_r, r_new), s_new[i][j]) * h + s_new[i][j] - s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)]) / (
+            s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)] - s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)])))
 
 
 def new_plot_lattice_movement_r0(i, k, n, h, r_new):
@@ -415,44 +378,44 @@ def new_plot_lattice_movement_r0(i, k, n, h, r_new):
     return 0
 
 
-def plot_lattice_movement_u0(i, j, k, n, h, r_new, lattice_u0):
+def plot_lattice_movement_u0(i, j, k, n, h, r_new, u_new, s_new):
     for l in range(0, n + 1):
         for m in range(0, l+1):
-            plt.scatter(l, lattice_u0[l][m], s=1, color='BLACK')
-    plt.scatter(i + 1, lattice_u0[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)], s=20, marker='o', color='BLUE')
-    plt.scatter(i, lattice_u0[i][j], s=20, marker='^', color='GREEN')
-    plt.scatter(i + 1, lattice_u0[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)], s=20, marker='o', color='RED')
+            plt.scatter(l, u_new[l][m], s=1, color='BLACK')
+    plt.scatter(i + 1, u_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)], s=20, marker='o', color='BLUE')
+    plt.scatter(i, u_new[i][j], s=20, marker='^', color='GREEN')
+    plt.scatter(i + 1, u_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)], s=20, marker='o', color='RED')
     plt.title("Mouvement sur la lattice de U0")
     plt.xlabel("temps")
     plt.show()
     return 0
 
 
-def m_i_ju_ku(i, j, k, sigma_r, h, r_new):
-    return (s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
+def m_i_ju_ku(i, j, k, sigma_r, h, r_new, s_new):
+    return (s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
 
 
-def m_i_jd_ku(i, j, k, sigma_r, h, r_new):
-    return (s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
+def m_i_jd_ku(i, j, k, sigma_r, h, r_new, s_new):
+    return (s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
 
 
-def m_i_ju_kd(i, j, k, sigma_r, h, r_new):
-    return (s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
+def m_i_ju_kd(i, j, k, sigma_r, h, r_new, s_new):
+    return (s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
 
 
-def m_i_jd_kd(i, j, k, sigma_r, h, r_new):
-    return (s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
+def m_i_jd_kd(i, j, k, sigma_r, h, r_new, s_new):
+    return (s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, h, r_new), sigma_r, r_new) - r_i_k(i, k, sigma_r, r_new))
 
 
-def transition_probabilities(i, j, k, sigma_r, h, r_new):
+def transition_probabilities(i, j, k, sigma_r, h, r_new, s_new):
     a = np.array([[1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 1, 1],
-                  [m_i_ju_ku(i, j, k, sigma_r, h, r_new), m_i_ju_kd(i, j, k, sigma_r, h, r_new), m_i_jd_ku(i, j, k, sigma_r, h, r_new), m_i_jd_kd(i, j, k, sigma_r, h, r_new)]])
+                  [m_i_ju_ku(i, j, k, sigma_r, h, r_new, s_new), m_i_ju_kd(i, j, k, sigma_r, h, r_new, s_new), m_i_jd_ku(i, j, k, sigma_r, h, r_new, s_new), m_i_jd_kd(i, j, k, sigma_r, h, r_new, s_new)]])
     b = np.array(
-        [p_new_i_j_k(i, j, k, h, r_new), p_new_i_k(i, k, h, r_new), 1, rho * sigma_r * pow(r_i_k(i, k, sigma_r, r_new), 0.5) * sigma_s * s_new[i][j] * h])
+        [p_new_i_j_k(i, j, k, h, sigma_r, r_new, s_new), p_new_i_k(i, k, h, r_new), 1, rho * sigma_r * pow(r_i_k(i, k, sigma_r, r_new), 0.5) * sigma_s * s_new[i][j] * h])
     return alg.solve(a, b)
 
 
-def initialize_v_new(n):
+def initialize_v_new(n, s_new):
     v0 = []
     for j in range(0, n + 1):
         v_j = []
@@ -462,28 +425,28 @@ def initialize_v_new(n):
     return v0
 
 
-def update_v_new(v0, n, sigma_r, h, r_new):
+def update_v_new(v0, n, sigma_r, h, r_new, s_new):
     for i in range(n - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
-                probability = transition_probabilities(i, j, k, sigma_r, h, r_new)
+                probability = transition_probabilities(i, j, k, sigma_r, h, r_new, s_new)
                 q_i_ju_ku0 = probability[0]
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
                 q_i_jd_kd0 = probability[3]
                 v_i_j += [max(max((K - s_new[i][j]), 0), np.exp(-r_i_k(i, k, sigma_r, r_new) * h) * (
-                        q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k, h, r_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_ju_kd0 *
-                        v0[0][j_u_new_i_j_k(i, j, k, h, r_new)][k_d_new_i_k(i, k, h, r_new)] + q_i_jd_ku0 *
-                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_jd_kd0 *
-                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new)][k_d_new_i_k(i, k, h, r_new)]))]
+                        q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k, h, r_new, s_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_ju_kd0 *
+                        v0[0][j_u_new_i_j_k(i, j, k, h, r_new, s_new)][k_d_new_i_k(i, k, h, r_new)] + q_i_jd_ku0 *
+                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new, s_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_jd_kd0 *
+                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new, s_new)][k_d_new_i_k(i, k, h, r_new)]))]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
 
 
-def initialize_v_new_euro(n):
+def initialize_v_new_euro(n, s_new):
     v0 = []
     for j in range(0, n + 1):
         v_j = []
@@ -493,22 +456,22 @@ def initialize_v_new_euro(n):
     return v0
 
 
-def update_v_new_euro(v0, n, sigma_r, h, r_new):
+def update_v_new_euro(v0, n, sigma_r, h, r_new, s_new):
     for i in range(n - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
-                probability = transition_probabilities(i, j, k, sigma_r, h, r_new)
+                probability = transition_probabilities(i, j, k, sigma_r, h, r_new, s_new)
                 q_i_ju_ku0 = probability[0]
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
                 q_i_jd_kd0 = probability[3]
                 v_i_j += [np.exp(-r_i_k(i, k, sigma_r, r_new) * h) * (
-                        q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k, h, r_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_ju_kd0 *
-                        v0[0][j_u_new_i_j_k(i, j, k, h, r_new)][k_d_new_i_k(i, k, h, r_new)] + q_i_jd_ku0 *
-                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_jd_kd0 *
-                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new)][k_d_new_i_k(i, k, h, r_new)])]
+                        q_i_ju_ku0 * v0[0][j_u_new_i_j_k(i, j, k, h, r_new, s_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_ju_kd0 *
+                        v0[0][j_u_new_i_j_k(i, j, k, h, r_new, s_new)][k_d_new_i_k(i, k, h, r_new)] + q_i_jd_ku0 *
+                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new, s_new)][k_u_new_i_k(i, k, h, r_new)] + q_i_jd_kd0 *
+                        v0[0][j_d_new_i_j_k(i, j, k, h, r_new, s_new)][k_d_new_i_k(i, k, h, r_new)])]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -534,39 +497,39 @@ def plot_ku_kd(n, h, sigma_r, r_new):
     return 0
 
 
-def new_jump(i, j, k, sigma_r, h, r_new):
+def new_jump(i, j, k, sigma_r, h, r_new, s_new):
     p = rd.random()
-    probability = transition_probabilities(i, j, k, sigma_r, h, r_new)
+    probability = transition_probabilities(i, j, k, sigma_r, h, r_new, s_new)
     q_i_ju_ku0 = probability[0]
     q_i_ju_kd0 = probability[1]
     q_i_jd_ku0 = probability[2]
     q_i_jd_kd0 = probability[3]
     q_sum = q_i_ju_ku0
     if p < q_sum:
-        return s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)], i + 1, j_u_new_i_j_k(i, j, k, h, r_new), k_u_new_i_k(i, k, h, r_new)
+        return s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)], i + 1, j_u_new_i_j_k(i, j, k, h, r_new, s_new), k_u_new_i_k(i, k, h, r_new)
     if q_sum < p < q_sum + q_i_ju_kd0:
-        return s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new)], i + 1, j_u_new_i_j_k(i, j, k, h, r_new), k_d_new_i_k(i, k, h, r_new)
+        return s_new[i + 1][j_u_new_i_j_k(i, j, k, h, r_new, s_new)], i + 1, j_u_new_i_j_k(i, j, k, h, r_new, s_new), k_d_new_i_k(i, k, h, r_new)
     q_sum += q_i_ju_kd0
     if q_sum < p < q_sum + q_i_jd_ku0:
-        return s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)], i + 1, j_d_new_i_j_k(i, j, k, h, r_new), k_u_new_i_k(i, k, h, r_new)
+        return s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)], i + 1, j_d_new_i_j_k(i, j, k, h, r_new, s_new), k_u_new_i_k(i, k, h, r_new)
     q_sum += q_i_jd_ku0
     if q_sum < p < q_sum + q_i_jd_kd0:
-        return s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new)], i + 1, j_d_new_i_j_k(i, j, k, h, r_new), k_d_new_i_k(i, k, h, r_new)
+        return s_new[i + 1][j_d_new_i_j_k(i, j, k, h, r_new, s_new)], i + 1, j_d_new_i_j_k(i, j, k, h, r_new, s_new), k_d_new_i_k(i, k, h, r_new)
 
 
-def new_simulation(n, sigma_r, h, r_new):
+def new_simulation(n, sigma_r, h, r_new, s_new):
     data = [S_0]
     i = 0
     j = 0
     k = 0
     while i < n:
-        s, i, j, k = new_jump(i, j, k, sigma_r, h, r_new)
+        s, i, j, k = new_jump(i, j, k, sigma_r, h, r_new, s_new)
         data += [s]
     return data
 
 
-def new_plot_simulation(n, sigma_r, h, r_new):
-    data = new_simulation(n, sigma_r, h, r_new)
+def new_plot_simulation(n, sigma_r, h, r_new, s_new):
+    data = new_simulation(n, sigma_r, h, r_new, s_new)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='GREEN')
 
@@ -648,15 +611,15 @@ if __name__ == '__main__':
                 R, Y = init_r_y(N, R_0, Y_0, H)
                 Tree = initialize_tree(N, R, Y)
 
-                R_new, U_new = initialize_lattice(R, H, Sigma_r, U_0, R)
-                s_new, tree_new = initialize_tree_new(N, R_new, U_new)
+                R_new, U_new = initialize_lattice(N, H, Sigma_r, U_0, R)
+                S_new, tree_new = initialize_tree_new(N, R_new, U_new)
 
-                WH_Amer = update_v([initialize_v(N, R, Y), R, Y], N, H, Sigma_r, R, Y)[0][0][0]
-                WH_Euro = update_v_euro([initialize_v_euro(N, R, Y), R, Y], N, H, Sigma_r, R, Y)[0][0][0]
+                WH_Amer = update_v([initialize_v(N, R, Y)], N, H, Sigma_r, R, Y)[0][0][0]
+                WH_Euro = update_v_euro([initialize_v_euro(N, R, Y)], N, H, Sigma_r, R, Y)[0][0][0]
 
-                Tree_Amer = update_v_new([initialize_v_new(N)], N, Sigma_r, H, R_new)[0][0][0]
-                Tree_Euro = update_v_new_euro([initialize_v_new_euro(N)], N, Sigma_r, H, R_new)[0][0][0]
-    
+                Tree_Amer = update_v_new([initialize_v_new(N, S_new)], N, Sigma_r, H, R_new, S_new)[0][0][0]
+                Tree_Euro = update_v_new_euro([initialize_v_new_euro(N, S_new)], N, Sigma_r, H, R_new, S_new)[0][0][0]
+
                 r_MC, s_MC = monte_carlo_approach(1000, T, N, Sigma_r)
                 r_MC_tree, s_MC_tree = mc_tree(1000, T, N, Sigma_r, R, Y)
 
