@@ -722,25 +722,7 @@ for valeur1 in tab_T:
                  str(update_v_new_euro([initialize_v_new_euro(N, s_new)], R0, s_new, h, N, R, sigma_r)[0][0][0]),
                  str(s_MC), str(s_MC_tree)])
             v_new = update_v_new_euro([initialize_v_new_euro(N, s_new)], R0, s_new, h, N, R, sigma_r)
-            fig0 = plt.figure()
-            for i in range(0, N + 1):
-                for j in range(0, i + 1):
-                    for k in range(0, i + 1):
-                        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
-            plt.title("Valeurs de l'option américaine au cours du temps par le modèle de Wei and Hilliard")
-            plt.xlabel("temps")
-            plt.close(fig0)
-            plt.savefig(str(valeur1) + ";" + str(valeur2) + ";" + str(valeur3) + ";" + "lattice_option_WH.png")
 
-            fig01 = plt.figure()
-            for i in range(0, N + 1):
-                for j in range(0, i + 1):
-                    for k in range(0, i + 1):
-                        plt.scatter(i, v_new[i][j][k], s=1, color='BLACK')
-            plt.title("Valeurs de l'option américaine au cours du temps par  le modèle de Robust tree")
-            plt.xlabel("temps")
-            plt.close(fig01)
-            plt.savefig(str(valeur1) + ";" + str(valeur2) + ";" + str(valeur3) + ";" + "lattice_option_RT.png")
 
             fig1 = plt.figure()
             plot_simulation(T, N, Y, R, sigma_r, h)
@@ -771,4 +753,25 @@ for valeur1 in tab_T:
             plot_lattice_movement_u0(35, 17, 15, U0, R0, s_new, h, T, N, sigma_r)
             plt.close(fig1)
             plt.savefig(str(valeur1) + ";" + str(valeur2) + ";" + str(valeur3) + ";" + "lattice_movement_u0.png")
+
+            fig7 = plt.figure()
+            for i in range(0, N + 1):
+                for j in range(0, i + 1):
+                    for k in range(0, i + 1):
+                        plt.scatter(i, v[i][j][k], s=1, color='BLACK')
+            plt.title("Valeurs de l'option américaine au cours du temps par le modèle de Wei and Hilliard")
+            plt.xlabel("temps")
+            plt.close(fig1)
+            plt.savefig(str(valeur1) + ";" + str(valeur2) + ";" + str(valeur3) + ";" + "lattice_option_WH.png")
+
+            fig8 = plt.figure()
+            for i in range(0, N + 1):
+                for j in range(0, i + 1):
+                    for k in range(0, i + 1):
+                        plt.scatter(i, v_new[i][j][k], s=1, color='BLACK')
+            plt.title("Valeurs de l'option américaine au cours du temps par  le modèle de Robust tree")
+            plt.xlabel("temps")
+            plt.close(fig1)
+            plt.savefig(str(valeur1) + ";" + str(valeur2) + ";" + str(valeur3) + ";" + "lattice_option_RT.png")
+
 fichier.close()
