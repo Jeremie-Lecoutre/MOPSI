@@ -127,10 +127,10 @@ def plot_lattice_movement_r(i,k, T, N, R, sigma_r, h):
     plt.scatter(i+1, R[i+1][k_d_i_k(i, k, R, sigma_r, h)], s=20,marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R")
     plt.xlabel("temps")
-    #nomplot = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
-     #   N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nomplot, format='png', dpi=300)
-    plt.savefig("Mouvement sur la lattice de R", dpi=300)
+    nomplot = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplot, dpi=300, format='png')
+    #plt.savefig("Mouvement sur la lattice de R", dpi=300)
     return 0
 
 
@@ -143,10 +143,10 @@ def plot_lattice_movement_y(i, j, k, T, N, Y, R, sigma_r, h):
     plt.scatter(i+1, Y[i+1][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)], s=20,marker='o', color='RED')
     plt.title("Mouvement sur la lattice de Y")
     plt.xlabel("temps")
-    #nomplot_lattice_y = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
-    #    N) + ", sigma_r=" + str(sigma_r) + ".png"
-    #plt.savefig(nomplot_lattice_y, dpi=300)
-    plt.savefig("Mouvement sur la lattice de R", dpi=300)
+    nomplot_lattice_y = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r) + ".png"
+    plt.savefig(nomplot_lattice_y, dpi=300, format='png')
+    #plt.savefig("Mouvement sur la lattice de R", dpi=300)
     return 0
 
 
@@ -329,10 +329,10 @@ def plot_simulation(T, N, Y, R, sigma_r, h):
     data = simulation(N, Y, R, sigma_r, h)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
-    #nom = "Simulation de l'évolution du prix de l'action avec: T=" + str(T) + ", N =" + str(
-    #    N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nom, format='png', dpi=300)
-    plt.savefig("Simulation de l'évolution du prix de l'action", dpi=300)
+    nom = "Simulation de l'évolution du prix de l'action avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, dpi=300, format='png')
+    #plt.savefig("Simulation de l'évolution du prix de l'action", dpi=300)
 
 
 def new_mu_r(r):
@@ -446,10 +446,10 @@ def new_plot_lattice_movement_r0(i,k, R0, h, T, N, sigma_r):
     plt.scatter(i+1, R0[i+1][k_d_new_i_k(i, k, R0, h)], s=20, marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R0")
     plt.xlabel("temps")
-    #nomplotlattice = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
-     #   N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nomplotlattice, format='png', dpi=300)
-    plt.savefig("Mouvement sur la lattice de R", dpi=300)
+    nomplotlattice = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplotlattice,  dpi=300, format='png')
+    #plt.savefig("Mouvement sur la lattice de R", dpi=300)
     return 0
 
 
@@ -462,10 +462,10 @@ def plot_lattice_movement_u0(i,j,k, U0, R0, s_new, h, T, N, sigma_r):
     plt.scatter(i+1, U0[i+1][j_d_new_i_j_k(i,j,k, R0, s_new, h)], s=20, marker='o', color='RED')
     plt.title("Mouvement sur la lattice de U0")
     plt.xlabel("temps")
-    #nomplotlatticeu0 = "Mouvement u0 sur la lattice de R: T=" + str(T) + ", N =" + str(
-    #    N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nomplotlatticeu0, format='png', dpi=300)
-    plt.savefig("Mouvement u0 sur la lattice de R", format='png', dpi=300)
+    nomplotlatticeu0 = "Mouvement u0 sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplotlatticeu0, dpi=300, format='png')
+    #plt.savefig("Mouvement u0 sur la lattice de R", format='png', dpi=300)
     return 0
 
 
@@ -571,7 +571,7 @@ def plot_tree(N, v):
         for j in range(0, i+1):
             for k in range(0, i+1):
                 plt.scatter(i, v[i][j][k], s=1, color='BLACK')
-    plt.savefig("arbre", format='png', dpi=300)
+    plt.savefig("arbre",  dpi=300, format='png')
     return 0
 
 
@@ -582,10 +582,10 @@ def plot_ku_kd(R, sigma_r, h, T, N):
             plt.scatter(i, k_u_i_k(i, k, R, sigma_r, h), s=1, color='BLUE', label='k_u')
             plt.subplot(1, 2, 2)
             plt.scatter(i, k_d_i_k(i, k, R, sigma_r, h), s=1, color='RED', label='k_d')
-    #nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
-    #    N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nom, format='png', dpi=300)
-    plt.savefig("plot_ku_kd", dpi=300)
+    nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, dpi=300, format='png')
+    #plt.savefig("plot_ku_kd", dpi=300)
     return 0
 
 
@@ -624,10 +624,10 @@ def new_plot_simulation(N, T, S_0, R0, s_new, h,  R, sigma_r):
     data = new_simulation(N, S_0, R0, s_new, h,  R, sigma_r)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='GREEN')
-    #nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
-    #    N) + ", sigma_r=" + str(sigma_r)
-    #plt.savefig(nom, format='png', dpi=300)
-    plt.savefig("Simulation de l'évolution du prix de l'action 2ème modèle", dpi=300)
+    nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, dpi=300, format='png')
+    #plt.savefig("Simulation de l'évolution du prix de l'action 2ème modèle", dpi=300)
     return 0
 
 

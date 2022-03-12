@@ -198,13 +198,6 @@
       <option name="presentableId" value="Default" />
       <updated>1635159179490</updated>
     </task>
-    <task id="LOCAL-00008" summary="Jump + Markov chain">
-      <created>1636638492602</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1636638492602</updated>
-    </task>
     <task id="LOCAL-00009" summary="Modifs mineures">
       <created>1636642027107</created>
       <option name="number" value="00009" />
@@ -541,7 +534,14 @@
       <option name="project" value="LOCAL" />
       <updated>1647100701150</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="Toutes variables utiles dans fonction">
+      <created>1647102761638</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1647102761638</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
