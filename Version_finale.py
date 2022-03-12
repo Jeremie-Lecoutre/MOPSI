@@ -632,6 +632,12 @@ def MC_tree(nb_simul, N, Y, R, sigma_r, h):
     tab_s.append(max(0,K-s))
   return np.array(tab_r).sum()/nb_simul, np.array(tab_s).sum()/nb_simul
 
+fichier = open('resultats.csv', 'w')
+ecrivainCSV = csv.writer(fichier, delimiter=";")
+ecrivainCSV.writerow(
+    ["Paramètres", "Wei and Hilliard Amer", "Wei and Hilliard Euro", "Robust Tree Americaine", "Robust Tree Euro",
+     "Simple Monte-Carlo Euro", "Monte-Carlo Tree Euro"])
+
 for valeur1 in tab_T:
     for valeur2 in Sigma_r:
         for valeur3 in tab_N:
@@ -680,3 +686,5 @@ for valeur1 in tab_T:
             plot_lattice_movement_y(25, 9, 15, T, N, Y, R, sigma_r, h)
             new_plot_lattice_movement_r0(35, 17, R0, h, T, N, sigma_r)
             plot_lattice_movement_u0(35, 17, 15, U0, R0, s_new, h, T, N, sigma_r)
+
+fichier.close()
