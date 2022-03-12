@@ -6,13 +6,13 @@ import random as rd
 import cv2
 import csv
 
-#Sigma_r = [0.08, 0.5, 1, 3]
-#tab_N = [50, 100, 150, 200, 300]
-#tab_T = [1, 2]
+Sigma_r = [0.08, 0.5, 1, 3]
+tab_N = [50, 100, 150, 200, 300]
+tab_T = [1, 2]
 
-Sigma_r = [0.08]
-tab_N = [50]
-tab_T = [1]
+#Sigma_r = [0.08]
+#tab_N = [50]
+#tab_T = [1]
 
 # Constants of our problem
 sigma_s = 0.25  # constant stock price volatility
