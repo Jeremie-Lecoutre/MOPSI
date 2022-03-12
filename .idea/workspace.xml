@@ -4,10 +4,8 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Presque_finie.py" afterDir="false" />
+    <list default="true" id="970f02d3-2012-40c0-86e7-fbd2db31bbfc" name="Default Changelist" comment="Toutes variables utiles dans fonction">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Version_finale_avec_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/Version_finale_avec_images.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +43,7 @@
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="Python.Presque_finie">
+  <component name="RunManager" selected="Python.Version_finale_avec_images">
     <configuration name="Copie" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="MOPSI" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -198,20 +196,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1635159179490</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Modifs mineures">
-      <created>1643637674867</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1643637674867</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Corrections typographiques">
-      <created>1643640175902</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1643640175902</updated>
     </task>
     <task id="LOCAL-00012" summary="Corrections typographiques">
       <created>1643640263552</created>
@@ -542,7 +526,21 @@
       <option name="project" value="LOCAL" />
       <updated>1647104296800</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="Toutes variables utiles dans fonction">
+      <created>1647107399338</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1647107399338</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Toutes variables utiles dans fonction">
+      <created>1647107597392</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1647107597392</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
