@@ -174,13 +174,6 @@
       <option name="presentableId" value="Default" />
       <updated>1635159179490</updated>
     </task>
-    <task id="LOCAL-00003" summary="Probability">
-      <created>1635165097376</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1635165097376</updated>
-    </task>
     <task id="LOCAL-00004" summary="Plot lattices">
       <created>1635167689341</created>
       <option name="number" value="00004" />
@@ -517,7 +510,14 @@
       <option name="project" value="LOCAL" />
       <updated>1647094186933</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="Toutes variables utiles dans fonction">
+      <created>1647095957821</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1647095957821</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

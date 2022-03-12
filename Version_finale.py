@@ -80,7 +80,7 @@ def k_d_i_k2(i, k, R, sigma_r, h):
     return int(k + np.floor((mu_r(R[i][k],sigma_r) * pow(h, 1 / 2) + 1) / 2))
 
 
-def k_u_i_k(i, k,, R, sigma_r, h):
+def k_u_i_k(i, k, R, sigma_r, h):
     return k_d_i_k(i, k, R, sigma_r, h) + 1
 
 
@@ -433,30 +433,30 @@ def plot_lattice_movement_u0(i,j,k, U0, R0, s_new, h, T, N, sigma_r):
     plt.show()
     return 0
 
-def m_i_ju_ku(i, j, k):
+def m_i_ju_ku(i, j, k,R0, s_new, h, R, sigma_r):
     return (s_new[i + 1][j_u_new_i_j_k(i, j, k, R0, s_new, h)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k, R, sigma_r))
 
 
-def m_i_jd_ku(i, j, k):
+def m_i_jd_ku(i, j, k,R0, s_new, h, R, sigma_r):
     return (s_new[i + 1][j_d_new_i_j_k(i, j, k, R0, s_new, h)] - s_new[i][j]) * (r_i_k(i + 1, k_u_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k, R, sigma_r))
 
 
-def m_i_ju_kd(i, j, k):
+def m_i_ju_kd(i, j, k,R0, s_new, h, R, sigma_r):
     return (s_new[i + 1][j_u_new_i_j_k(i, j, k, R0, s_new, h)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k, R, sigma_r))
 
 
-def m_i_jd_kd(i, j, k):
+def m_i_jd_kd(i, j, k,R0, s_new, h, R, sigma_r):
     return (s_new[i + 1][j_d_new_i_j_k(i, j, k, R0, s_new, h)] - s_new[i][j]) * (r_i_k(i + 1, k_d_new_i_k(i, k, R0, h), R, sigma_r) - r_i_k(i, k, R, sigma_r))
 
 
-def transition_probabilities(i, j, k):
+def transition_probabilities(i, j, k,R0, s_new, h, R, sigma_r):
     a = np.array([[1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 1, 1],
-                  [m_i_ju_ku(i, j, k), m_i_ju_kd(i, j, k), m_i_jd_ku(i, j, k), m_i_jd_kd(i, j, k)]])
+                  [m_i_ju_ku(i, j, k,R0, s_new, h, R, sigma_r), m_i_ju_kd(i, j, k,R0, s_new, h, R, sigma_r), m_i_jd_ku(i, j, k,R0, s_new, h, R, sigma_r), m_i_jd_kd(i, j, k,R0, s_new, h, R, sigma_r)]])
     b = np.array(
         [p_new_i_j_k(i, j, k, R0, s_new, h, R, sigma_r), p_new_i_k(i, k, R0, h), 1, rho * sigma_r * pow(r_i_k(i, k, R, sigma_r), 0.5) * sigma_s * s_new[i][j] * h])
     return alg.solve(a, b)
 
-def initialize_v_new():
+def initialize_v_new(N, s_new):
     v0 = []
     for j in range(0, N + 1):
         v_j = []
@@ -466,13 +466,13 @@ def initialize_v_new():
     return v0
 
 
-def update_v_new(v0):
+def update_v_new(v0, R0, s_new, h, N, R, sigma_r):
     for i in range(N - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
-                probability = transition_probabilities(i, j, k)
+                probability = transition_probabilities(i, j, k,R0, s_new, h, R, sigma_r)
                 q_i_ju_ku0 = probability[0]
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
@@ -487,11 +487,11 @@ def update_v_new(v0):
     return v0
 
 #Attention, exécution de l'ordre de 20 secondes
-v_new = [initialize_v_new()]
-v_new = update_v_new(v_new)
-print("Prix de l'option de vente américaine par robust tree : " + str(v_new[0][0][0]))
+#v_new = [initialize_v_new(N, s_new)]
+#v_new = update_v_new(v_new, R0, s_new, h, N, R, sigma_r)
+#print("Prix de l'option de vente américaine par robust tree : " + str(v_new[0][0][0]))
 
-def initialize_v_new_euro():
+def initialize_v_new_euro(N, s_new):
     v0 = []
     for j in range(0, N + 1):
         v_j = []
@@ -501,13 +501,13 @@ def initialize_v_new_euro():
     return v0
 
 
-def update_v_new_euro(v0):
+def update_v_new_euro(v0, R0, s_new, h, N, R, sigma_r):
     for i in range(N - 1, -1, -1):
         v_i = []
         for j in range(0, i + 1):
             v_i_j = []
             for k in range(0, i + 1):
-                probability = transition_probabilities(i, j, k)
+                probability = transition_probabilities(i, j, k,R0, s_new, h, R, sigma_r)
                 q_i_ju_ku0 = probability[0]
                 q_i_ju_kd0 = probability[1]
                 q_i_jd_ku0 = probability[2]
@@ -522,11 +522,11 @@ def update_v_new_euro(v0):
     return v0
 
 #Attention, exécution de l'ordre de 20 secondes
-v_new_euro = [initialize_v_new_euro()]
-v_new_euro = update_v_new_euro(v_new_euro)
-print("Prix de l'option européenne par robust tree : " + str(v_new_euro[0][0][0]))
+#v_new_euro = [initialize_v_new_euro(N, s_new)]
+#v_new_euro = update_v_new_euro(v_new_euro, R0, s_new, h, N, R, sigma_r)
+#print("Prix de l'option européenne par robust tree : " + str(v_new_euro[0][0][0]))
 
-def plot_tree():
+def plot_tree(N,v):
     for i in range(0, N+1):
         for j in range(0, i+1):
             for k in range(0, i+1):
@@ -536,7 +536,7 @@ def plot_tree():
 
 
 
-def plot_ku_kd():
+def plot_ku_kd(R, sigma_r, h, T, N):
     for i in range(0, N):
         for k in range(0, i + 1):
             plt.subplot(1, 2, 1)
@@ -546,9 +546,9 @@ def plot_ku_kd():
     plt.show()
     return 0
 
-def new_jump(i, j, k, Y, R, sigma_r, h):
+def new_jump(i, j, k, R0, s_new, h,  R, sigma_r):
     p = rd.random()
-    probability = transition_probabilities(i, j, k)
+    probability = transition_probabilities(i, j, k,R0, s_new, h, R, sigma_r)
     q_i_ju_ku0 = probability[0]
     q_i_ju_kd0 = probability[1]
     q_i_jd_ku0 = probability[2]
@@ -566,23 +566,23 @@ def new_jump(i, j, k, Y, R, sigma_r, h):
         return s_new[i + 1][j_d_new_i_j_k(i, j, k, R0, s_new, h)], i + 1, j_d_new_i_j_k(i, j, k, R0, s_new, h), k_d_new_i_k(i, k, R0, h)
 
 
-def new_simulation():
+def new_simulation(N, S_0, R0, s_new, h,  R, sigma_r):
     data = [S_0]
     i = 0
     j = 0
     k = 0
     while i < N:
-        s, i, j, k = new_jump(i, j, k, Y, R, sigma_r, h)
+        s, i, j, k = new_jump(i, j, k, R0, s_new, h,  R, sigma_r)
         data += [s]
     return data
 
 
-def new_plot_simulation():
-    data = new_simulation()
+def new_plot_simulation(N, T, S_0, R0, s_new, h,  R, sigma_r):
+    data = new_simulation(N, S_0, R0, s_new, h,  R, sigma_r)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='GREEN')
 
-def Monte_carlo_approach(simulation_number):
+def Monte_carlo_approach(simulation_number, r_0, S_0, N, T, sigma_r):
   r_i = r_0*np.ones(simulation_number)
   S_i = S_0*np.ones(simulation_number)
   theta_tab = theta *np.ones(simulation_number)
@@ -598,7 +598,7 @@ def Monte_carlo_approach(simulation_number):
     r_i[i] = r_i[i]/simulation_number
   return r_i.sum(), S_i.sum()
 
-def jump_MC(i, j, k):
+def jump_MC(i, j, k, Y, R, sigma_r, h):
     p = rd.random()
     q_sum = q_i_jd_kd(i, j, k, Y, R, sigma_r, h)
     if p < q_sum:
@@ -613,21 +613,21 @@ def jump_MC(i, j, k):
         return r_i_k(i + 1, k_u_i_k(i, k, R, sigma_r, h), R, sigma_r), s_i_j_k(i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h), Y, R), i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)
 
 
-def simulationMC():
+def simulationMC(N, Y, R, sigma_r, h):
     s = S_0
     r = r_0
     i = 0
     j = 0
     k = 0
     while i < N:
-        r, s, i, j, k = jump_MC(i, j, k)
+        r, s, i, j, k = jump_MC(i, j, k, Y, R, sigma_r, h)
     return r, s
 
-def MC_tree(nb_simul):
+def MC_tree(nb_simul, N, Y, R, sigma_r, h):
   tab_r = []
   tab_s = []
   for i in range(nb_simul):
-    r, s = simulationMC()
+    r, s = simulationMC(N, Y, R, sigma_r, h)
     tab_r.append(r)
     tab_s.append(max(0,K-s))
   return np.array(tab_r).sum()/nb_simul, np.array(tab_s).sum()/nb_simul
@@ -671,11 +671,10 @@ for valeur1 in tab_T:
             r_MC_tree, s_MC_tree = MC_tree(1000, N, Y, R, sigma_r, h)
             print("Prix de l'option européenne par Monte-Carlo et la méthode d'arbres : " + str(s_MC_tree))
 
-            print("Prix du put par Black-Scholes : " + str(Black_scholes_put_option(T)))
 
             plot_simulation(N, Y, R, sigma_r, h)
             plt.show()
-            new_plot_simulation()
+            new_plot_simulation(N, T, S_0, R0, s_new, h,  R, sigma_r)
             plt.show()
             plot_lattice_movement_r(25, 9, T, N, R, sigma_r, h)
             plot_lattice_movement_y(25, 9, 15, T, N, Y, R, sigma_r, h)
