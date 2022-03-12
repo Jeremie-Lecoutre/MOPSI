@@ -123,7 +123,9 @@ def plot_lattice_movement_r(i,k, T, N, R, sigma_r, h):
     plt.scatter(i+1, R[i+1][k_d_i_k(i, k, R, sigma_r, h)], s=20,marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R")
     plt.xlabel("temps")
-    plt.show()
+    nomplot = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplot, format='png', dpi=300)
     return 0
 
 def plot_lattice_movement_y(i,j,k, T, N, Y, R, sigma_r, h):
@@ -135,7 +137,9 @@ def plot_lattice_movement_y(i,j,k, T, N, Y, R, sigma_r, h):
     plt.scatter(i+1, Y[i+1][j_d_i_j_k(i,j,k, Y, R, sigma_r, h)], s=20,marker='o' , color='RED')
     plt.title("Mouvement sur la lattice de Y")
     plt.xlabel("temps")
-    plt.show()
+    nomplot_lattice_y = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r) + ".png"
+    plt.savefig(nomplot_lattice_y, dpi=300)
     return 0
 
 # Bivariate tree
@@ -305,10 +309,13 @@ def simulation(N, Y, R, sigma_r, h):
     return data
 
 
-def plot_simulation(N, Y, R, sigma_r, h):
+def plot_simulation(T,N, Y, R, sigma_r, h):
     data = simulation(N, Y, R, sigma_r, h)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
+    nom = "Simulation de l'évolution du prix de l'action avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, format='png', dpi=300)
 
 def new_mu_r(r):
     return kappa * (theta - r)
@@ -418,7 +425,9 @@ def new_plot_lattice_movement_r0(i,k, R0, h, T, N, sigma_r):
     plt.scatter(i+1, R0[i+1][k_d_new_i_k(i, k, R0, h)], s=20,marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R0")
     plt.xlabel("temps")
-    plt.show()
+    nomplotlattice = "Mouvement sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplotlattice, format='png', dpi=300)
     return 0
 
 def plot_lattice_movement_u0(i,j,k, U0, R0, s_new, h, T, N, sigma_r):
@@ -430,7 +439,9 @@ def plot_lattice_movement_u0(i,j,k, U0, R0, s_new, h, T, N, sigma_r):
     plt.scatter(i+1, U0[i+1][j_d_new_i_j_k(i,j,k, R0, s_new, h)], s=20,marker='o' , color='RED')
     plt.title("Mouvement sur la lattice de U0")
     plt.xlabel("temps")
-    plt.show()
+    nomplotlatticeu0 = "Mouvement u0 sur la lattice de R: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nomplotlatticeu0, format='png', dpi=300)
     return 0
 
 def m_i_ju_ku(i, j, k,R0, s_new, h, R, sigma_r):
@@ -531,7 +542,7 @@ def plot_tree(N,v):
         for j in range(0, i+1):
             for k in range(0, i+1):
                 plt.scatter(i, v[i][j][k], s=1, color='BLACK')
-    plt.show()
+    plt.savefig("arbre", format='png', dpi=300)
     return 0
 
 
@@ -543,7 +554,9 @@ def plot_ku_kd(R, sigma_r, h, T, N):
             plt.scatter(i, k_u_i_k(i, k, R, sigma_r, h), s=1, color='BLUE', label='k_u')
             plt.subplot(1, 2, 2)
             plt.scatter(i, k_d_i_k(i, k, R, sigma_r, h), s=1, color='RED', label='k_d')
-    plt.show()
+    nom = "plot_ku_kd avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, format='png', dpi=300)
     return 0
 
 def new_jump(i, j, k, R0, s_new, h,  R, sigma_r):
@@ -581,6 +594,10 @@ def new_plot_simulation(N, T, S_0, R0, s_new, h,  R, sigma_r):
     data = new_simulation(N, S_0, R0, s_new, h,  R, sigma_r)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='GREEN')
+    nom = "Simulation de l'évolution du prix de l'action 2ème modèle avec: T=" + str(T) + ", N =" + str(
+        N) + ", sigma_r=" + str(sigma_r)
+    plt.savefig(nom, format='png', dpi=300)
+    return 0
 
 def Monte_carlo_approach(simulation_number, r_0, S_0, N, T, sigma_r):
   r_i = r_0*np.ones(simulation_number)
@@ -642,10 +659,46 @@ for valeur1 in tab_T:
     for valeur2 in Sigma_r:
         for valeur3 in tab_N:
 
+           # # Constants of our problem
+            #T = valeur1  # time to maturity
+            #N = valeur3  # Number of intervals
+            #sigma_r = valeur2  # positive constant
+
+            #h = T / N
+            #X_0 = np.log(S_0) / sigma_s
+            #R_0 = 2 * pow(r_0, 0.5) / sigma_r
+            #Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
+            #U_0 = np.log(S_0) / sigma_s
+
+            #R, Y, = init_r_y(R_0,Y_0,N,h)
+            #v=v_optimised_2(Y, R, sigma_r, h, N)
+            #v_euro = update_v_euro([initialize_v_euro(N, Y, R)],Y, R, sigma_r, h, N)
+            #print("Prix de l'action européenne par Wei and Hilliard-Schwartz-Tucker : "+ str(v_euro[0][0][0]))
+
+            #R0, U0 = initialize_lattice(R, sigma_r, N)
+            #s_new, tree_new = initialize_tree_new(N, R0, U0)
+
+            # Attention, exécution de l'ordre de 20 secondes
+            #v_new = [initialize_v_new(N, s_new)]
+            #v_new = update_v_new(v_new, R0, s_new, h, N, R, sigma_r)
+            #print("Prix de l'option de vente américaine par robust tree : " + str(v_new[0][0][0]))
+
+            # Attention, exécution de l'ordre de 20 secondes
+            #v_new_euro = [initialize_v_new_euro(N, s_new)]
+            #v_new_euro = update_v_new_euro(v_new_euro, R0, s_new, h, N, R, sigma_r)
+            #print("Prix de l'option européenne par robust tree : " + str(v_new_euro[0][0][0]))
+
+            #r_MC, s_MC = Monte_carlo_approach(1000, r_0, S_0, N, T, sigma_r)
+            #print("Prix de l'option européenne par Monte-Carlo simple : " + str(s_MC))
+
+            #r_MC_tree, s_MC_tree = MC_tree(1000, N, Y, R, sigma_r, h)
+            #print("Prix de l'option européenne par Monte-Carlo et la méthode d'arbres : " + str(s_MC_tree))
+
             # Constants of our problem
             T = valeur1  # time to maturity
             N = valeur3  # Number of intervals
             sigma_r = valeur2  # positive constant
+            # The Wei and Hilliard-Schwartz-Tucker procedures
 
             h = T / N
             X_0 = np.log(S_0) / sigma_s
@@ -653,35 +706,33 @@ for valeur1 in tab_T:
             Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
             U_0 = np.log(S_0) / sigma_s
 
-            R, Y, = init_r_y(R_0,Y_0,N,h)
-            v=v_optimised_2(Y, R, sigma_r, h, N)
-            v_euro = update_v_euro([initialize_v_euro(N, Y, R)],Y, R, sigma_r, h, N)
-            print("Prix de l'action européenne par Wei and Hilliard-Schwartz-Tucker : "+ str(v_euro[0][0][0]))
+            R, Y, = init_r_y(R_0, Y_0, N, h)
+            Tree = initialize_tree(N, R, Y)
+
+            v = [initialize_v(N, Y, R)]
+            v = update_v(v, Y, R, sigma_r, h, N)
+            # cv2.imwrite(plot_simulation(N, Y, R, sigma_r, h), plot_simulation(N, Y, R, sigma_r, h))
 
             R0, U0 = initialize_lattice(R, sigma_r, N)
             s_new, tree_new = initialize_tree_new(N, R0, U0)
-
-            # Attention, exécution de l'ordre de 20 secondes
-            v_new = [initialize_v_new(N, s_new)]
-            v_new = update_v_new(v_new, R0, s_new, h, N, R, sigma_r)
-            print("Prix de l'option de vente américaine par robust tree : " + str(v_new[0][0][0]))
-
-            # Attention, exécution de l'ordre de 20 secondes
-            v_new_euro = [initialize_v_new_euro(N, s_new)]
-            v_new_euro = update_v_new_euro(v_new_euro, R0, s_new, h, N, R, sigma_r)
-            print("Prix de l'option européenne par robust tree : " + str(v_new_euro[0][0][0]))
+            # cv2.imwrite(plot_ku_kd(R, sigma_r, h, T, N), plot_ku_kd(R, sigma_r, h, T, N))
+            # cv2.imwrite(new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r),
+            #            new_plot_simulation(N, T, S_0, R0, s_new, h, R, sigma_r))
 
             r_MC, s_MC = Monte_carlo_approach(1000, r_0, S_0, N, T, sigma_r)
-            print("Prix de l'option européenne par Monte-Carlo simple : " + str(s_MC))
-
             r_MC_tree, s_MC_tree = MC_tree(1000, N, Y, R, sigma_r, h)
-            print("Prix de l'option européenne par Monte-Carlo et la méthode d'arbres : " + str(s_MC_tree))
+            ecrivainCSV.writerow(
+                ["T = " + str(valeur1) + "; sigma_R = " + str(valeur2) + "; N = " + str(valeur3), str(v[0][0][0]),
+                 str(update_v_euro([initialize_v_euro(N, Y, R)], Y, R, sigma_r, h, N)[0][0][0]),
+                 str(update_v_new([initialize_v_new(N, s_new)], R0, s_new, h, N, R, sigma_r)[0][0][0]),
+                 str(update_v_new_euro([initialize_v_new_euro(N, s_new)], R0, s_new, h, N, R, sigma_r)[0][0][0]),
+                 str(s_MC), str(s_MC_tree)])
 
 
-            plot_simulation(N, Y, R, sigma_r, h)
-            plt.show()
+            plot_simulation(T,N, Y, R, sigma_r, h)
+            #plt.show()
             new_plot_simulation(N, T, S_0, R0, s_new, h,  R, sigma_r)
-            plt.show()
+            #plt.show()
             plot_lattice_movement_r(25, 9, T, N, R, sigma_r, h)
             plot_lattice_movement_y(25, 9, 15, T, N, Y, R, sigma_r, h)
             new_plot_lattice_movement_r0(35, 17, R0, h, T, N, sigma_r)

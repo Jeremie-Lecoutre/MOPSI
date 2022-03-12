@@ -258,7 +258,7 @@ def simulation(N, Y, R, sigma_r, h):
     return data
 
 
-def plot_simulation(N, Y, R, sigma_r, h):
+def plot_simulation(N, Y, R, T, sigma_r, h):
     data = simulation(N, Y, R, sigma_r, h)
     for i in range(0, len(data)):
         plt.scatter(i, data[i], s=1, color='RED')
