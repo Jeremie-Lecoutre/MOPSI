@@ -3,39 +3,38 @@ import numpy.linalg as alg
 import matplotlib.pyplot as plt
 import scipy.stats as si
 import random as rd
+import cv2
+import csv
 
-sigma_s = 0.25
-sigma_r = 0.08
-kappa = 0.5
-S_0 = 100
-r_0 = 0.06
-theta = 0.1
-rho = -0.25
-T = 1
-N = 50
-K = 100
-h = T / N
-X_0 = np.log(S_0) / sigma_s
-R_0 = 2 * pow(r_0, 0.5) / sigma_r
-Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
-U_0 = np.log(S_0) / sigma_s
+#Sigma_r = [0.08, 0.5, 1, 3]
+#tab_N = [50, 100, 150, 200, 300]
+#tab_T = [1, 2]
 
-# tester sigma r très petit, theta = r_0, et rho = 0 Black-Scholes
-# Introduction au calcul stochastique appliqué à la finance : modèle de Cox Ross (arbre binomial qui approche Black-Scholes)
-# Coder le modèle 1D sur Y pour voir si on retrouve la même chose
+Sigma_r = [0.08]
+tab_N = [50]
+tab_T = [1]
 
-def mu_x(r):
+# Constants of our problem
+sigma_s = 0.25  # constant stock price volatility
+kappa = 0.5  # reversion speed
+S_0 = 100  # positive
+r_0 = 0.06  # positive
+theta = 0.1  # long term reversion target
+rho = -0.25  # correlation between Z_S and Z_r
+K = 100  # Strike of the American Put Option
+
+def mu_x(r,sigma_r):
     return (pow(sigma_r, 2) * pow(r, 2) / 4 - pow(sigma_s, 2) / 2) / sigma_s
 
 
-def mu_r(r):
+def mu_r(r,sigma_r):
     return (kappa * (4 * theta - pow(r, 2) * pow(sigma_r, 2)) - pow(sigma_r, 2)) / (2 * r * pow(sigma_r, 2))
 
 
-def mu_y(r):
-    return (mu_x(r) - rho * mu_r(r)) / pow(1 - pow(rho, 2), 0.5)
+def mu_y(r,sigma_r):
+    return (mu_x(r,sigma_r) - rho * mu_r(r,sigma_r)) / pow(1 - pow(rho, 2), 0.5)
 
-def init_r_y():
+def init_r_y(R_0,Y_0,N,h):
     r = []
     y = []
     for i in range(0, N + 1):
@@ -48,7 +47,7 @@ def init_r_y():
         y += [y_i]
     return r, y
 
-def init_r_y_optimised():
+def init_r_y_optimised(R_0,Y_0,N,h):
     r = np.zeros((N+1,N+1))
     y = np.zeros((N+1,N+1))
     for i in range(0, N + 1):
@@ -58,16 +57,16 @@ def init_r_y_optimised():
     return r, y
 
 
-R, Y, = init_r_y()
+#R, Y, = init_r_y(R_0,Y_0,N,h)
 
-# R, Y, = init_r_y_optimised()
+# R, Y, = init_r_y_optimised(R_0,Y_0,N,h)
 # %timeit init_r_y_optimised
 
 # Function to compute probabilities and movement
-def k_d_i_k(i, k):
+def k_d_i_k(i, k, R, sigma_r, h):
     k_d = -1
     for k_star in range(0, i + 1):
-        if R[i][k] + mu_r(R[i][k]) * h >= R[i + 1][k_star]:
+        if R[i][k] + mu_r(R[i][k],sigma_r) * h >= R[i + 1][k_star]:
             if k_star > k_d:
                 k_d = k_star
     if k_d == -1:
@@ -77,23 +76,23 @@ def k_d_i_k(i, k):
         return k_d
 
 
-def k_d_i_k2(i, k):
-    return int(k + np.floor((mu_r(R[i][k]) * pow(h, 1 / 2) + 1) / 2))
+def k_d_i_k2(i, k, R, sigma_r, h):
+    return int(k + np.floor((mu_r(R[i][k],sigma_r) * pow(h, 1 / 2) + 1) / 2))
 
 
-def k_u_i_k(i, k):
-    return k_d_i_k(i, k) + 1
+def k_u_i_k(i, k,, R, sigma_r, h):
+    return k_d_i_k(i, k, R, sigma_r, h) + 1
 
 
-def p_i_k(i, k):
-    return max(0, min(1, (mu_r(R[i][k]) * h + R[i][k] - R[i + 1][k_d_i_k(i, k)]) / (
-            R[i + 1][k_u_i_k(i, k)] - R[i + 1][k_d_i_k(i, k)])))
+def p_i_k(i, k, R, sigma_r, h):
+    return max(0, min(1, (mu_r(R[i][k],sigma_r) * h + R[i][k] - R[i + 1][k_d_i_k(i, k, R, sigma_r, h)]) / (
+            R[i + 1][k_u_i_k(i, k, R, sigma_r, h)] - R[i + 1][k_d_i_k(i, k, R, sigma_r, h)])))
 
 
-def j_d_i_j_k(i, j, k):
+def j_d_i_j_k(i, j, k, Y, R, sigma_r, h):
     j_d = -1
     for j_star in range(0, i + 1):
-        if Y[i][j] + mu_y(R[i][k]) * h >= Y[i + 1][j_star]:
+        if Y[i][j] + mu_y(R[i][k],sigma_r) * h >= Y[i + 1][j_star]:
             if j_star > j_d:
                 j_d = j_star
     if j_d == -1:
@@ -102,26 +101,26 @@ def j_d_i_j_k(i, j, k):
         return j_d
 
 
-def j_d_i_j_k2(i, j, k):
-    return int(j + np.floor((mu_y(R[i][k]) * pow(h, 1 / 2) + 1) / 2))
+def j_d_i_j_k2(i, j, k, Y, R, sigma_r, h):
+    return int(j + np.floor((mu_y(R[i][k],sigma_r) * pow(h, 1 / 2) + 1) / 2))
 
 
-def j_u_i_j_k(i, j, k):
-    return j_d_i_j_k(i, j, k) + 1
+def j_u_i_j_k(i, j, k, Y, R, sigma_r, h):
+    return j_d_i_j_k(i, j, k, Y, R, sigma_r, h) + 1
 
 
-def p_i_j_k(i, j, k):
-    return max(0, min(1, (mu_y(R[i][k]) * h + Y[i][j] - Y[i + 1][j_d_i_j_k(i, j, k)]) / (
-            Y[i + 1][j_u_i_j_k(i, j, k)] - Y[i + 1][j_d_i_j_k(i, j, k)])))
+def p_i_j_k(i, j, k, Y, R, sigma_r, h):
+    return max(0, min(1, (mu_y(R[i][k],sigma_r) * h + Y[i][j] - Y[i + 1][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)]) / (
+            Y[i + 1][j_u_i_j_k(i, j, k, Y, R, sigma_r, h)] - Y[i + 1][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)])))
 
 # Ploting the different lattice and movement upon them
 def plot_lattice_movement_r(i,k):
     for l in range(0, N+1):
         for m in range(0,l+1):
             plt.scatter(l, R[l][m], s=1, color='BLACK')
-    plt.scatter(i+1, R[i+1][k_u_i_k(i,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i+1, R[i+1][k_u_i_k(i,k, R, sigma_r, h)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, R[i][k], s=20, marker ='^', color='GREEN')
-    plt.scatter(i+1, R[i+1][k_d_i_k(i, k)], s=20,marker='o', color='RED')
+    plt.scatter(i+1, R[i+1][k_d_i_k(i, k, R, sigma_r, h)], s=20,marker='o', color='RED')
     plt.title("Mouvement sur la lattice de R")
     plt.xlabel("temps")
     plt.show()
@@ -131,9 +130,9 @@ def plot_lattice_movement_y(i,j,k):
     for l in range(0, N+1):
         for m in range(0,l+1):
             plt.scatter(l, Y[l][m], s=1, color='BLACK')
-    plt.scatter(i+1, Y[i+1][j_u_i_j_k(i,j,k)], s=20,marker='o', color ='BLUE')
+    plt.scatter(i+1, Y[i+1][j_u_i_j_k(i,j,k, Y, R, sigma_r, h)], s=20,marker='o', color ='BLUE')
     plt.scatter(i, Y[i][j], s=20, marker ='^',color='GREEN')
-    plt.scatter(i+1, Y[i+1][j_d_i_j_k(i,j,k)], s=20,marker='o' , color='RED')
+    plt.scatter(i+1, Y[i+1][j_d_i_j_k(i,j,k, Y, R, sigma_r, h)], s=20,marker='o' , color='RED')
     plt.title("Mouvement sur la lattice de Y")
     plt.xlabel("temps")
     plt.show()
@@ -156,19 +155,19 @@ def initialize_tree():
 Tree = initialize_tree()
 
 def q_i_ju_ku(i, j, k):
-    return p_i_k(i, k) * p_i_j_k(i, j, k)
+    return p_i_k(i, k, R, sigma_r, h) * p_i_j_k(i, j, k, Y, R, sigma_r, h)
 
 
 def q_i_ju_kd(i, j, k):
-    return (1 - p_i_k(i, k)) * p_i_j_k(i, j, k)
+    return (1 - p_i_k(i, k, R, sigma_r, h)) * p_i_j_k(i, j, k, Y, R, sigma_r, h)
 
 
 def q_i_jd_ku(i, j, k):
-    return p_i_k(i, k) * (1 - p_i_j_k(i, j, k))
+    return p_i_k(i, k, R, sigma_r, h) * (1 - p_i_j_k(i, j, k, Y, R, sigma_r, h))
 
 
 def q_i_jd_kd(i, j, k):
-    return (1 - p_i_k(i, k)) * (1 - p_i_j_k(i, j, k))
+    return (1 - p_i_k(i, k, R, sigma_r, h)) * (1 - p_i_j_k(i, j, k, Y, R, sigma_r, h))
 
 # Functions for the joint evolution of the processes r and S
 def s_i_j_k(i, j, k):
@@ -198,9 +197,9 @@ def update_v(v0):
             v_i_j = []
             for k in range(0, i + 1):
                 v_i_j += [max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
-                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
-                        v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
-                            k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)]))]
+                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k, Y, R, sigma_r, h)][k_u_i_k(i, k, R, sigma_r, h)] + q_i_ju_kd(i, j, k) *
+                        v0[0][j_u_i_j_k(i, j, k, Y, R, sigma_r, h)][k_d_i_k(i, k, R, sigma_r, h)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)][
+                            k_u_i_k(i, k, R, sigma_r, h)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)][k_d_i_k(i, k, R, sigma_r, h)]))]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -214,10 +213,10 @@ def v_optimised():
     for i in range(N - 1, -1, -1):
         for j in range(0, i + 1):
             for k in range(0, i + 1):
-              j_u=j_u_i_j_k(i, j, k)
-              j_d=j_d_i_j_k(i, j, k)
-              k_u=k_u_i_k(i, k)
-              k_d=k_d_i_k(i, k)
+              j_u=j_u_i_j_k(i, j, k, Y, R, sigma_r, h)
+              j_d=j_d_i_j_k(i, j, k, Y, R, sigma_r, h)
+              k_u=k_u_i_k(i, k, R, sigma_r, h)
+              k_d=k_d_i_k(i, k, R, sigma_r, h)
               v[i][j][k]= max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                         q_i_ju_ku(i, j, k) * v[i+1][j_u][k_u] + q_i_ju_kd(i, j, k) *
                         v[i+1][j_u][k_d] + q_i_jd_ku(i, j, k) * v[i+1][j_d][
@@ -234,10 +233,10 @@ def v_optimised_2():
     for i in range(N - 1, -1, -1):
         for j in range(0, i + 1):
             for k in range(0, i + 1):
-              j_u=j_u_i_j_k(i, j, k)
-              j_d=j_d_i_j_k(i, j, k)
-              k_u=k_u_i_k(i, k)
-              k_d=k_d_i_k(i, k)
+              j_u=j_u_i_j_k(i, j, k, Y, R, sigma_r, h)
+              j_d=j_d_i_j_k(i, j, k, Y, R, sigma_r, h)
+              k_u=k_u_i_k(i, k, R, sigma_r, h)
+              k_d=k_d_i_k(i, k, R, sigma_r, h)
               v[i][j][k]= max(max((K - s_i_j_k(i, j, k)), 0), np.exp(-r_i_k(i, k) * h) * (
                         q_i_ju_ku(i, j, k) * v[i+1][j_u][k_u] + q_i_ju_kd(i, j, k) *
                         v[i+1][j_u][k_d] + q_i_jd_ku(i, j, k) * v[i+1][j_d][
@@ -270,9 +269,9 @@ def update_v_euro(v0):
             v_i_j = []
             for k in range(0, i + 1):
                 v_i_j += [ np.exp(-r_i_k(i, k) * h) * (
-                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k)][k_u_i_k(i, k)] + q_i_ju_kd(i, j, k) *
-                        v0[0][j_u_i_j_k(i, j, k)][k_d_i_k(i, k)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][
-                            k_u_i_k(i, k)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k)][k_d_i_k(i, k)])]
+                        q_i_ju_ku(i, j, k) * v0[0][j_u_i_j_k(i, j, k, Y, R, sigma_r, h)][k_u_i_k(i, k, R, sigma_r, h)] + q_i_ju_kd(i, j, k) *
+                        v0[0][j_u_i_j_k(i, j, k, Y, R, sigma_r, h)][k_d_i_k(i, k, R, sigma_r, h)] + q_i_jd_ku(i, j, k) * v0[0][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)][
+                            k_u_i_k(i, k, R, sigma_r, h)] + q_i_jd_kd(i, j, k) * v0[0][j_d_i_j_k(i, j, k, Y, R, sigma_r, h)][k_d_i_k(i, k, R, sigma_r, h)])]
             v_i += [v_i_j]
         v0 = [v_i] + v0
     return v0
@@ -284,15 +283,15 @@ def jump(i, j, k):
     p = rd.random()
     q_sum = q_i_jd_kd(i, j, k)
     if p < q_sum:
-        return s_i_j_k(i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)
+        return s_i_j_k(i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)
     if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
-        return s_i_j_k(i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)
+        return s_i_j_k(i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)
     q_sum += q_i_jd_ku(i, j, k)
     if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
-        return s_i_j_k(i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)
+        return s_i_j_k(i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)
     q_sum += q_i_ju_kd(i, j, k)
     if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
-        return s_i_j_k(i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)
+        return s_i_j_k(i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)
 
 
 def simulation():
@@ -541,9 +540,9 @@ def plot_ku_kd():
     for i in range(0, N):
         for k in range(0, i + 1):
             plt.subplot(1, 2, 1)
-            plt.scatter(i, k_u_i_k(i, k), s=1, color='BLUE', label='k_u')
+            plt.scatter(i, k_u_i_k(i, k, R, sigma_r, h), s=1, color='BLUE', label='k_u')
             plt.subplot(1, 2, 2)
-            plt.scatter(i, k_d_i_k(i, k), s=1, color='RED', label='k_d')
+            plt.scatter(i, k_d_i_k(i, k, R, sigma_r, h), s=1, color='RED', label='k_d')
     plt.show()
     return 0
 
@@ -603,15 +602,15 @@ def jump_MC(i, j, k):
     p = rd.random()
     q_sum = q_i_jd_kd(i, j, k)
     if p < q_sum:
-        return r_i_k(i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_d_i_k(i, k)
+        return r_i_k(i + 1, k_d_i_k(i, k, R, sigma_r, h)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)
     if q_sum < p < q_sum + q_i_jd_ku(i, j, k):
-        return r_i_k(i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)), i + 1, j_d_i_j_k(i, j, k), k_u_i_k(i, k)
+        return r_i_k(i + 1, k_u_i_k(i, k, R, sigma_r, h)), s_i_j_k(i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)), i + 1, j_d_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)
     q_sum += q_i_jd_ku(i, j, k)
     if q_sum < p < q_sum + q_i_ju_kd(i, j, k):
-        return r_i_k(i + 1, k_d_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_d_i_k(i, k)
+        return r_i_k(i + 1, k_d_i_k(i, k, R, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_d_i_k(i, k, R, sigma_r, h)
     q_sum += q_i_ju_kd(i, j, k)
     if q_sum < p < q_sum + q_i_ju_ku(i, j, k):
-        return r_i_k(i + 1, k_u_i_k(i, k)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)), i + 1, j_u_i_j_k(i, j, k), k_u_i_k(i, k)
+        return r_i_k(i + 1, k_u_i_k(i, k, R, sigma_r, h)), s_i_j_k(i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)), i + 1, j_u_i_j_k(i, j, k, Y, R, sigma_r, h), k_u_i_k(i, k, R, sigma_r, h)
 
 
 def simulationMC():
@@ -633,29 +632,52 @@ def MC_tree(nb_simul):
     tab_s.append(max(0,K-s))
   return np.array(tab_r).sum()/nb_simul, np.array(tab_s).sum()/nb_simul
 
-r_MC, s_MC = Monte_carlo_approach(1000)
-print("Prix de l'option européenne par Monte-Carlo simple : " + str(s_MC))
+for valeur1 in tab_T:
+    for valeur2 in Sigma_r:
+        for valeur3 in tab_N:
 
-r_MC_tree, s_MC_tree = MC_tree(1000)
-print("Prix de l'option européenne par Monte-Carlo et la méthode d'arbres : "+ str(s_MC_tree))
+            # Constants of our problem
+            T = valeur1  # time to maturity
+            N = valeur3  # Number of intervals
+            sigma_r = valeur2  # positive constant
 
+            h = T / N
+            X_0 = np.log(S_0) / sigma_s
+            R_0 = 2 * pow(r_0, 0.5) / sigma_r
+            Y_0 = (np.log(S_0) / sigma_s - 2 * rho * pow(r_0, 0.5) / sigma_r) / pow(1 - pow(rho, 2), 0.5)
+            U_0 = np.log(S_0) / sigma_s
 
-def Black_scholes_put_option():
-    d1 = (np.log(S_0 / K) + (r_0 + 0.5 * sigma_s ** 2) * T) / (sigma_s * np.sqrt(T))
-    d2 = (np.log(S_0 / K) + (r_0 - 0.5 * sigma_s ** 2) * T) / (sigma_s * np.sqrt(T))
+            R, Y, = init_r_y(R_0,Y_0,N,h)
+            v=v_optimised_2(N, Y, R, sigma_r, h)
+            v_euro = update_v_euro([initialize_v_euro(N, Y, R)],Y, R, sigma_r, h, N)
+            print("Prix de l'action européenne par Wei and Hilliard-Schwartz-Tucker : "+ str(v_euro[0][0][0]))
 
-    put = (K * np.exp(-r_0 * T) * si.norm.cdf(-d2, 0.0, 1.0) - S_0 * si.norm.cdf(-d1, 0.0, 1.0))
-    return put
+            R0, U0 = initialize_lattice(R, sigma_r, N)
+            s_new, tree_new = initialize_tree_new(N, R0, U0)
 
+            # Attention, exécution de l'ordre de 20 secondes
+            v_new = [initialize_v_new(N, s_new)]
+            v_new = update_v_new(v_new, R0, s_new, h, N, R, sigma_r)
+            print("Prix de l'option de vente américaine par robust tree : " + str(v_new[0][0][0]))
 
-print("Prix du put par Black-Scholes : " + str(Black_scholes_put_option()))
+            # Attention, exécution de l'ordre de 20 secondes
+            v_new_euro = [initialize_v_new_euro(N, s_new)]
+            v_new_euro = update_v_new_euro(v_new_euro, R0, s_new, h, N, R, sigma_r)
+            print("Prix de l'option européenne par robust tree : " + str(v_new_euro[0][0][0]))
 
+            r_MC, s_MC = Monte_carlo_approach(1000, r_0, S_0, N, T, sigma_r)
+            print("Prix de l'option européenne par Monte-Carlo simple : " + str(s_MC))
 
-plot_simulation()
-plt.show()
-new_plot_simulation()
-plt.show()
-plot_lattice_movement_r(25, 9)
-plot_lattice_movement_y(25, 9, 15)
-new_plot_lattice_movement_r0(35, 17)
-plot_lattice_movement_u0(35, 17, 15)
+            r_MC_tree, s_MC_tree = MC_tree(1000, N, Y, R, sigma_r, h)
+            print("Prix de l'option européenne par Monte-Carlo et la méthode d'arbres : " + str(s_MC_tree))
+
+            print("Prix du put par Black-Scholes : " + str(Black_scholes_put_option(T)))
+
+            plot_simulation()
+            plt.show()
+            new_plot_simulation()
+            plt.show()
+            plot_lattice_movement_r(25, 9)
+            plot_lattice_movement_y(25, 9, 15)
+            new_plot_lattice_movement_r0(35, 17)
+            plot_lattice_movement_u0(35, 17, 15)
